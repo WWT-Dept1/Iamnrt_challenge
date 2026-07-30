@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Controller - IAMNRT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800;900&family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #241143; --ink-soft: #5B4B7A;
+            --paper: #FFFFFF; --cream: #FFF6E9;
+            --card-bg: rgba(255,255,255,0.96); --card-border: rgba(36,17,67,0.10);
+
+            --bg-1: #FF3D74; --bg-2: #FF8A3D; --bg-3: #7B3FFF; --bg-4: #FFD23D;
+
+            --gold: #FFC400;
+            --coral: #FF3D74;
+            --cyan: #21C1E0;
+            --violet: #7B3FFF;
+            --lime: #2ECC71;
+            --amber: #FF8C1A;
+
+            --color-i: #FF3D5A; --color-a: #FF8C1A; --color-m: #FFC400;
+            --color-n: #2ECC71; --color-r: #21C1E0; --color-t: #7B3FFF;
+
+            --font-display: 'Kanit', sans-serif;
+            --font-body: 'Prompt', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); -webkit-tap-highlight-color: transparent; }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-4), var(--bg-3), var(--bg-1));
+            background-size: 400% 400%;
+            animation: bgShift 9s ease infinite;
+            color: var(--ink);
+            display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
+            justify-content: center; align-items: center;
+            position: relative;
+        }
+        @keyframes bgShift { 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
+
+        /* ---------- Soft glow orbs + drifting sparkle dust (signature backdrop) ---------- */
+        .glow-orb { position: fixed; border-radius: 50%; filter: blur(70px); opacity: 0.4; z-index: 0; pointer-events: none; animation: floatOrb 9s ease-in-out infinite; background: #fff; }
+        .orb-1 { width: 300px; height: 300px; top: -100px; left: -90px; }
+        .orb-2 { width: 260px; height: 260px; bottom: -80px; right: -80px; animation-delay: 2s; }
+        @keyframes floatOrb { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-26px) scale(1.08);} }
+
+        .spotlight-bg { position: fixed; inset: -10%; z-index: 0; pointer-events: none; opacity: 0.45;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.55) 2px, transparent 2.5px);
+            background-size: 42px 42px;
+            animation: sparkleDrift 22s linear infinite;
+        }
+        @keyframes sparkleDrift { from { background-position: 0 0; } to { background-position: 380px 380px; } }
+
+        .drift-particle { position: absolute; bottom: -30px; border-radius: 50%; opacity: 0.75; animation: driftUp linear infinite; z-index: 0; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
+        @keyframes driftUp { 0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.8; } 100% { transform: translateY(-112vh) scale(0.4) rotate(200deg); opacity: 0; } }
+
+        /* ---------- Carnival bunting strip: triangle pennant flags + twinkling bulbs (no sliding motion) ---------- */
+        .marquee-lights {
+            height: 22px; width: 100%;
+            position: relative;
+            background-image: repeating-linear-gradient(
+                135deg,
+                var(--coral) 0 14px, var(--gold) 14px 28px,
+                var(--cyan) 28px 42px, var(--violet) 42px 56px, var(--lime) 56px 70px
+            );
+            clip-path: polygon(
+                0% 0%, 3.5% 0%, 0% 100%, 7% 0%, 10.5% 0%, 7% 100%, 14% 0%, 17.5% 0%, 14% 100%,
+                21% 0%, 24.5% 0%, 21% 100%, 28% 0%, 31.5% 0%, 28% 100%, 35% 0%, 38.5% 0%, 35% 100%,
+                42% 0%, 45.5% 0%, 42% 100%, 49% 0%, 52.5% 0%, 49% 100%, 56% 0%, 59.5% 0%, 56% 100%,
+                63% 0%, 66.5% 0%, 63% 100%, 70% 0%, 73.5% 0%, 70% 100%, 77% 0%, 80.5% 0%, 77% 100%,
+                84% 0%, 87.5% 0%, 84% 100%, 91% 0%, 94.5% 0%, 91% 100%, 98% 0%, 100% 0%, 98% 100%
+            );
+            filter: drop-shadow(0 3px 4px rgba(36,17,67,0.35));
+        }
+        .marquee-lights::after {
+            content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 6px;
+            background-image: radial-gradient(circle, #fff 0 2.5px, transparent 3px);
+            background-size: 24px 6px;
+            animation: bulbTwinkle 1.6s ease-in-out infinite;
+        }
+        @keyframes bulbTwinkle { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+        /* ================= SETUP SCREEN ================= */
+        #setup-screen {
+            display: flex; flex-direction: column;
+            width: 90%; max-width: 400px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            text-align: center;
+            border: 3px solid var(--gold);
+            box-shadow: 0 25px 70px rgba(36,17,67,0.28), 0 0 0 1px rgba(255,255,255,0.5) inset;
+            position: relative; z-index: 1;
+            overflow: visible;
+            backdrop-filter: blur(8px);
+            animation: cardRise 0.65s cubic-bezier(0.22,1,0.36,1);
+        }
+        .tent-valance {
+            position: absolute; top: -22px; left: -3px; right: -3px; height: 30px;
+            background-image: repeating-linear-gradient(90deg, var(--coral) 0 20px, #fff 20px 40px);
+            -webkit-mask-image: radial-gradient(circle 12px at 10px 0, transparent 11px, #000 12px);
+            mask-image: radial-gradient(circle 12px at 10px 0, transparent 11px, #000 12px);
+            -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
+            -webkit-mask-size: 20px 30px; mask-size: 20px 30px;
+            border-radius: 30px 30px 0 0;
+            filter: drop-shadow(0 4px 6px rgba(36,17,67,0.25));
+        }
+        @keyframes cardRise { 0% { transform: translateY(40px) scale(0.94); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+
+        .setup-inner { padding: 34px 30px 34px; }
+
+        .stage-badge {
+            display: inline-block; font-family: var(--font-body); font-size: 13px; font-weight: 700;
+            letter-spacing: 2px; color: var(--ink); background: rgba(255,196,0,0.14);
+            border: 2px solid var(--gold); padding: 6px 18px; border-radius: 20px;
+            margin-bottom: 18px; text-transform: uppercase;
+            animation: chipFloat 3.4s ease-in-out infinite;
+        }
+        @keyframes chipFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+        .marquee-title {
+            font-family: var(--font-display);
+            font-size: 46px; font-weight: 800;
+            letter-spacing: 3px;
+            display: flex; justify-content: center; gap: 3px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .marquee-title span {
+            display: inline-block;
+            -webkit-text-stroke: 2px var(--ink);
+            animation: letterFloat 2.2s ease-in-out infinite, letterGlow 2.2s ease-in-out infinite;
+            text-shadow: 3px 3px 0 rgba(36,17,67,0.12);
+        }
+        @keyframes letterGlow {
+            0%, 100% { filter: drop-shadow(0 0 0 currentColor); }
+            50% { filter: drop-shadow(0 0 10px currentColor); }
+        }
+        .marquee-title span:nth-child(1) { color: var(--color-i); animation-delay: 0s; }
+        .marquee-title span:nth-child(2) { color: var(--color-a); animation-delay: 0.12s; }
+        .marquee-title span:nth-child(3) { color: var(--color-m); animation-delay: 0.24s; }
+        .marquee-title span:nth-child(4) { color: var(--color-n); animation-delay: 0.36s; }
+        .marquee-title span:nth-child(5) { color: var(--color-r); animation-delay: 0.48s; }
+        .marquee-title span:nth-child(6) { color: var(--color-t); animation-delay: 0.6s; }
+        @keyframes letterFloat { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
+
+        .setup-sub {
+            font-size: 15px; color: var(--ink-soft); margin-bottom: 28px; font-weight: 600; letter-spacing: 0.3px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 17px; margin-bottom: 14px;
+            border-radius: 16px; border: 2px solid var(--card-border);
+            font-size: 17px; font-family: var(--font-body); font-weight: 500;
+            text-align: center; color: var(--ink);
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+        }
+        input::placeholder { color: #B0A6CC; }
+        input:focus, select:focus { border-color: var(--cyan); transform: scale(1.02); box-shadow: 0 0 0 4px rgba(33,193,224,0.18); }
+        select { cursor: pointer; appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--violet) 50%), linear-gradient(135deg, var(--violet) 50%, transparent 50%); background-position: calc(100% - 22px) center, calc(100% - 16px) center; background-size: 6px 6px; background-repeat: no-repeat; text-align: left; padding-left: 20px; }
+
+        .start-btn {
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, var(--coral), var(--violet));
+            background-size: 200% 200%;
+            color: #fff; border: 3px solid var(--ink);
+            padding: 18px; font-size: 21px; font-weight: 700;
+            font-family: var(--font-display);
+            letter-spacing: 1px;
+            border-radius: 18px; cursor: pointer;
+            box-shadow: 0 8px 0 var(--ink), 0 16px 32px rgba(36,17,67,0.3), 0 0 0 0 rgba(255,196,0,0.5);
+            animation: shimmer 3s ease infinite, btnGlowPulse 1.8s ease-in-out infinite;
+            transition: transform 0.12s, box-shadow 0.12s;
+            margin-top: 4px;
+        }
+        @keyframes btnGlowPulse {
+            0%, 100% { box-shadow: 0 8px 0 var(--ink), 0 16px 32px rgba(36,17,67,0.3), 0 0 0 0 rgba(255,196,0,0.45); }
+            50% { box-shadow: 0 8px 0 var(--ink), 0 16px 32px rgba(36,17,67,0.3), 0 0 0 10px rgba(255,196,0,0); }
+        }
+        .start-btn::after {
+            content: ""; position: absolute; top: 0; left: -45%; width: 32%; height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+            transform: skewX(-20deg);
+            animation: btnShine 3.2s ease-in-out infinite;
+        }
+        @keyframes btnShine { 0% { left: -45%; } 55% { left: 130%; } 100% { left: 130%; } }
+        .start-btn:hover { transform: translateY(-2px) scale(1.02); }
+        .start-btn:active { transform: translateY(6px) scale(1); box-shadow: 0 2px 0 var(--ink), 0 6px 14px rgba(36,17,67,0.3); }
+        @keyframes shimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+        /* ================= MOBILE CONTROLLER ================= */
+        #mobile-controller {
+            display: none; flex-direction: column;
+            width: 100%; height: 100%;
+            padding: 0; position: relative; z-index: 1;
+        }
+
+        .mobile-header {
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: 17px; font-weight: 700;
+            color: var(--ink);
+            letter-spacing: 0.5px;
+            background: var(--card-bg); border: 2px solid var(--gold);
+            display: block; width: fit-content; margin: 14px auto 8px; padding: 10px 26px; border-radius: 22px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 20px rgba(36,17,67,0.2);
+            animation: chipFloat 3.4s ease-in-out infinite;
+        }
+
+        .controller-hint {
+            text-align: center; font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; font-weight: 600;
+            background: var(--card-bg); width: fit-content; margin: 0 auto 4px; padding: 6px 18px; border-radius: 16px;
+        }
+
+        .grid-buttons {
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
+            gap: 14px; flex: 1; padding: 10px 16px 22px;
+        }
+
+        .btn-choice {
+            position: relative;
+            border: 3px solid var(--ink);
+            border-radius: 24px;
+            font-family: var(--font-display);
+            font-size: 48px; font-weight: 800;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 8px 0 var(--ink), 0 14px 24px rgba(36,17,67,0.28), inset 0 3px 12px rgba(255,255,255,0.32);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: transform 0.12s, box-shadow 0.12s, filter 0.2s;
+            animation: btnPopIn 0.55s cubic-bezier(0.34,1.56,0.64,1) backwards;
+            overflow: hidden;
+        }
+        .btn-choice::after {
+            content: ""; position: absolute; top: -60%; left: -20%;
+            width: 60%; height: 220%;
+            background: rgba(255,255,255,0.3);
+            transform: rotate(20deg);
+            animation: shine 2.8s ease-in-out infinite;
+        }
+        @keyframes shine { 0% { left: -40%; } 50% { left: 130%; } 100% { left: 130%; } }
+        @keyframes btnPopIn { 0% { transform: scale(0.3) rotate(-8deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+
+        .btn-choice:nth-child(1) { animation-delay: 0.05s; }
+        .btn-choice:nth-child(2) { animation-delay: 0.1s; }
+        .btn-choice:nth-child(3) { animation-delay: 0.15s; }
+        .btn-choice:nth-child(4) { animation-delay: 0.2s; }
+        .btn-choice:nth-child(5) { animation-delay: 0.25s; }
+        .btn-choice:nth-child(6) { animation-delay: 0.3s; }
+
+        .btn-choice:not(:disabled) { animation: btnPopIn 0.55s cubic-bezier(0.34,1.56,0.64,1) backwards, choiceGlow 1.6s ease-in-out infinite; }
+        @keyframes choiceGlow {
+            0%, 100% { box-shadow: 0 8px 0 var(--ink), 0 14px 24px rgba(36,17,67,0.28), inset 0 3px 12px rgba(255,255,255,0.32), 0 0 0 0 rgba(255,255,255,0.5); }
+            50% { box-shadow: 0 8px 0 var(--ink), 0 14px 24px rgba(36,17,67,0.28), inset 0 3px 12px rgba(255,255,255,0.32), 0 0 0 6px rgba(255,255,255,0); }
+        }
+        .btn-choice:not(:disabled):hover { transform: translateY(-3px) scale(1.03); }
+        .btn-choice:not(:disabled):active { transform: translateY(6px) scale(0.96); box-shadow: 0 2px 0 var(--ink), 0 5px 12px rgba(36,17,67,0.28); }
+
+        .btn-choice:disabled { cursor: not-allowed; filter: grayscale(55%) brightness(0.85); box-shadow: 0 4px 0 var(--ink), 0 6px 14px rgba(36,17,67,0.22); transform: translateY(4px); animation: none; opacity: 0.75; }
+        .btn-choice:disabled::after { display: none; }
+
+        .btn-choice span.label { font-family: var(--font-body); font-size: 14px; font-weight: 600; margin-top: 6px; text-shadow: 0 1px 3px rgba(36,17,67,0.35); }
+
+        .btn-i { background: linear-gradient(145deg, #FF7A88, var(--color-i)); }
+        .btn-a { background: linear-gradient(145deg, #FFB067, var(--color-a)); }
+        .btn-m { background: linear-gradient(145deg, #FFDD67, var(--color-m)); }
+        .btn-n { background: linear-gradient(145deg, #6FE8A0, var(--color-n)); }
+        .btn-r { background: linear-gradient(145deg, #6FE0EE, var(--color-r)); }
+        .btn-t { background: linear-gradient(145deg, #B499FF, var(--color-t)); }
+
+        .lock-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 246, 233, 0.94);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 21px; color: var(--ink); font-family: var(--font-display); font-weight: 700;
+            z-index: 20; flex-direction: column; gap: 18px;
+            text-align: center; padding: 30px;
+            opacity: 0; transform: scale(0.96); pointer-events: none;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .lock-overlay.active { opacity: 1; transform: scale(1); pointer-events: auto; }
+        .lock-overlay .spinner-lights {
+            width: 68px; height: 68px; border-radius: 50%;
+            background: conic-gradient(var(--coral), var(--gold), var(--cyan), var(--violet), var(--lime), var(--coral));
+            animation: spin 1.3s linear infinite;
+            box-shadow: 0 0 0 6px #fff, 0 8px 24px rgba(36,17,67,0.25);
+            position: relative;
+        }
+        .lock-overlay .spinner-lights::before {
+            content: ""; position: absolute; inset: 8px; border-radius: 50%; background: var(--cream);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="spotlight-bg"></div>
+    <div class="confetti-bg" id="confetti-bg"></div>
+
+    <div id="setup-screen">
+        <div class="tent-valance"></div>
+        <div class="marquee-lights"></div>
+        <div class="setup-inner">
+            <div class="stage-badge">🎙️ Player Controller</div>
+            <div class="marquee-title">
+                <span>I</span><span>A</span><span>M</span><span>N</span><span>R</span><span>T</span>
+            </div>
+            <div class="setup-sub">กรอกชื่อและเลือกทีมของคุณเพื่อร่วมสนุก</div>
+            <input type="text" id="playerName" placeholder="ชื่อผู้เล่น (เช่น Aof)">
+            <select id="teamName">
+                <option value="Team 1">🟠 Team 1</option><option value="Team 2">🔵 Team 2</option>
+                <option value="Team 3">🟣 Team 3</option><option value="Team 4">🟢 Team 4</option><option value="Team 5">🩷 Team 5</option>
+            </select>
+            <button class="start-btn" onclick="joinGame()">🎉 เข้าสู่ระบบเกม</button>
+        </div>
+        <div class="marquee-lights"></div>
+    </div>
+
+    <div id="mobile-controller">
+        <div class="marquee-lights"></div>
+        <div class="mobile-header" id="player-info">📱 Your Controller</div>
+        <div class="controller-hint" id="controller-hint">รอคำถามจากจอทีวี...</div>
+        <div class="grid-buttons">
+            <button id="btn-I" class="btn-choice btn-i" onclick="submitAnswer('I')" disabled>I<span class="label">สัตย์ซื่อ</span></button>
+            <button id="btn-A" class="btn-choice btn-a" onclick="submitAnswer('A')" disabled>A<span class="label">คล่องตัว</span></button>
+            <button id="btn-M" class="btn-choice btn-m" onclick="submitAnswer('M')" disabled>M<span class="label">มืออาชีพ</span></button>
+            <button id="btn-N" class="btn-choice btn-n" onclick="submitAnswer('N')" disabled>N<span class="label">ไม่หยุดนิ่ง</span></button>
+            <button id="btn-R" class="btn-choice btn-r" onclick="submitAnswer('R')" disabled>R<span class="label">วางใจได้</span></button>
+            <button id="btn-T" class="btn-choice btn-t" onclick="submitAnswer('T')" disabled>T<span class="label">ร่วมมือ</span></button>
+        </div>
+        <div id="lock-overlay" class="lock-overlay">
+            <div class="spinner-lights"></div>
+            <div>รอสัญญาณจากจอทีวี... ⏳</div>
+        </div>
+    </div>
+
+    <script>
+        // Decorative floating particles (purely visual, no game logic)
+        (function() {
+            const colors = ['#FF3D74', '#FFC400', '#21C1E0', '#7B3FFF', '#2ECC71', '#FF8C1A'];
+            const container = document.getElementById('confetti-bg');
+            for (let i = 0; i < 18; i++) {
+                const el = document.createElement('span');
+                el.className = 'drift-particle';
+                const size = 5 + Math.random() * 7;
+                el.style.width = size + 'px';
+                el.style.height = size + 'px';
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.background = colors[Math.floor(Math.random() * colors.length)];
+                el.style.animationDuration = (7 + Math.random() * 9) + 's';
+                el.style.animationDelay = (Math.random() * 8) + 's';
+                container.appendChild(el);
+            }
+        })();
+
+        // ---------- Lightweight synthesized sound effects (no external audio files) ----------
+        const AudioFX = (function() {
+            let ctx;
+            function getCtx() {
+                if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctx.state === 'suspended') ctx.resume();
+                return ctx;
+            }
+            function tone(freq, duration, type, vol, delay) {
+                delay = delay || 0;
+                const c = getCtx();
+                const osc = c.createOscillator();
+                const gain = c.createGain();
+                osc.type = type; osc.frequency.value = freq;
+                osc.connect(gain).connect(c.destination);
+                const start = c.currentTime + delay;
+                gain.gain.setValueAtTime(0.0001, start);
+                gain.gain.exponentialRampToValueAtTime(vol, start + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+                osc.start(start); osc.stop(start + duration + 0.02);
+            }
+            return {
+                unlock() { getCtx(); },
+                tap() { tone(1100, 0.05, 'sine', 0.15); },
+                confirm() { tone(720, 0.09, 'triangle', 0.18); tone(1080, 0.12, 'triangle', 0.16, 0.09); },
+                lock() { tone(300, 0.12, 'sawtooth', 0.12); },
+                success() { tone(660, 0.1, 'triangle', 0.18); tone(880, 0.12, 'triangle', 0.18, 0.1); tone(1320, 0.22, 'triangle', 0.2, 0.2); }
+            };
+        })();
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDH0huI55zmuW9xsLjjbH0yZ7CFnP3Bs9w",
+            authDomain: "iamnrt-game.firebaseapp.com",
+            databaseURL: "https://iamnrt-game-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "iamnrt-game",
+            storageBucket: "iamnrt-game.firebasestorage.app",
+            messagingSenderId: "511830468788",
+            appId: "1:511830468788:web:2a19537c57dfa27aa80fe1"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let pName = "", tName = "", hasAnswered = false;
+
+        window.joinGame = function() {
+            window.AudioFX && AudioFX.unlock();
+            pName = document.getElementById('playerName').value.trim();
+            tName = document.getElementById('teamName').value;
+            if(!pName) return alert('กรุณาใส่ชื่อครับ');
+            AudioFX.confirm();
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('mobile-controller').style.display = 'flex';
+            document.getElementById('player-info').innerText = `📱 ${pName} (${tName})`;
+
+            // 🟢 จุดที่เพิ่มเข้ามา: สั่งให้มือถือรายงานตัวเข้าฐานข้อมูลทันทีที่กดเข้าห้อง
+            set(ref(db, `players/${pName}`), { name: pName, team: tName });
+
+            onValue(ref(db, 'gameState'), (snapshot) => {
+                const state = snapshot.val() || { phase: 'lobby' };
+                const hint = document.getElementById('controller-hint');
+                if(state.phase === 'question') {
+                    hasAnswered = false;
+                    if (state.order && Array.isArray(state.order)) {
+                        const grid = document.querySelector('.grid-buttons');
+                        state.order.forEach(letter => {
+                            const btn = document.getElementById('btn-' + letter);
+                            if (btn) grid.appendChild(btn);
+                        });
+                    }
+                    document.querySelectorAll('.btn-choice').forEach(b => b.disabled = false);
+                    document.getElementById('lock-overlay').classList.remove('active');
+                    if (hint) hint.innerText = 'เลือกคำตอบของคุณ!';
+                } else {
+                    document.querySelectorAll('.btn-choice').forEach(b => b.disabled = true);
+                    document.getElementById('lock-overlay').classList.add('active');
+                    const lockText = document.getElementById('lock-overlay').lastElementChild;
+                    if(state.phase === 'lobby') { lockText.innerText = "รอเริ่มเกม... ⏳"; if (hint) hint.innerText = 'รอคำถามจากจอทีวี...'; }
+                    else if(state.phase === 'result') { lockText.innerText = "หมดเวลา! ดูผลที่หน้าจอ 📺"; if (hint) hint.innerText = 'ดูผลบนจอทีวี'; }
+                }
+            });
+        };
+
+        window.submitAnswer = function(ans) {
+            if(hasAnswered) return;
+            hasAnswered = true;
+            AudioFX.tap();
+            document.querySelectorAll('.btn-choice').forEach(b => b.disabled = true);
+            document.getElementById('lock-overlay').classList.add('active');
+            document.getElementById('lock-overlay').lastElementChild.innerText = "ส่งคำตอบแล้ว! รอดูผล 🚀";
+            setTimeout(() => AudioFX.success(), 80);
+
+            set(ref(db, `answers/${pName}`), { name: pName, team: tName, answer: ans, time: Date.now() });
+        };
+    </script>
+</body>
+</html>

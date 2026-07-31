@@ -523,15 +523,15 @@
         const db = getDatabase(app);
 
         const masterQuestions = [
-            { img: "https://thapakornp-source.github.io/iamnrt-game/q1.jpg", text: "1. นาย A ปลอมแปลงลายเซ็นนาย B เพื่อช่วยนาย B ที่ลืมเซ็นชื่อในใบ WWT CONSUMPTION เป็นการกระทำที่ไม่อยากเห็นในข้อใด?", answer: "I" },
-            { img: "http://googleusercontent.com/image_collection/image_retrieval/1537849012885588917_0", text: "2. มอเตอร์ถังกวนเร็วเสียกะทันหัน ทีมงานรีบปรับแผนติดตั้งปั๊มจุ่มแทนภายใน 10 นาที ตรงกับข้อใด?", answer: "A" },
-            { img: "http://googleusercontent.com/image_collection/image_retrieval/12785037274961950503_0", text: "3. ช่างซ่อมบำรุงวิเคราะห์และแก้ปัญหาระบบสั่นได้อย่างรวดเร็ว", answer: "M" },
-            { img: "http://googleusercontent.com/image_collection/image_retrieval/9057692274237685538_0", text: "4. พนักงานเสนอไอเดียปรับลดการใช้สารเคมีในบ่อบำบัดด้วยเทคโนโลยีใหม่", answer: "N" },
-            { img: "http://googleusercontent.com/image_collection/image_retrieval/10733130674044062834_0", text: "5. อุปกรณ์ได้รับการตรวจสอบตามรอบ (PM) อย่างเป๊ะๆ ไม่มีขาดตกบกพร่อง", answer: "R" },
-            { img: "http://googleusercontent.com/image_collection/image_retrieval/10316150750373783413_0", text: "6. พนักงานต่างแผนกมาช่วยกันขนย้ายถังสารเคมีเพื่อให้ทันฝนตก", answer: "T" },
-            { img: "http://googleusercontent.com/image_collection/image_retrieval/4055390080126835503_0", text: "7. ผู้รับเหมาเสนอเงินใต้โต๊ะแลกกับการเซ็นรับงานซ่อมบำรุง แต่พนักงานปฏิเสธ", answer: "I" },
-            { img: "http://googleusercontent.com/image_collection/image_retrieval/15244013459370850574_0", text: "8. นโยบายเปลี่ยนให้บันทึกข้อมูลผ่าน Tablet พนักงานเรียนรู้และใช้งานทันที", answer: "A" },
-            { img: "http://googleusercontent.com/image_collection/image_retrieval/18392383905923425853_0", text: "9. อธิบายขั้นตอนการจัดการสารเคมีอันตรายให้ผู้เยี่ยมชมฟังได้อย่างถูกต้อง", answer: "M" },
+            { q1.jpeg : "https://thapakornp-source.github.io/iamnrt-game/q1.jpg", text: "นายณัฐวุฒิ ปลอมแปลงลายเซ็นนายนพดล เพื่อช่วยนายนพดล ที่ลืมเซ็นชื่อในใบ WWT CONSUMPTION เป็นการกระทำที่ไม่อยากเห็นในข้อใด?", answer: "I" },
+            { q2.jpg.png.jpeg : "http://googleusercontent.com/image_collection/image_retrieval/1537849012885588917_0", text: "2. มอเตอร์ถังกวนเร็วเสียกะทันหัน ทีมงานรีบปรับแผนติดตั้งปั๊มจุ่มแทนภายใน 10 นาที ตรงกับข้อใด?", answer: "A" },
+            { q1.jpeg : "http://googleusercontent.com/image_collection/image_retrieval/12785037274961950503_0", text: "ก่อนหมดเวลากะการทำงาน พนักงานกะ C ส่งมอบงานต่อให้กะ A โดยมีการตรวจสอบค่าโลหะสังกะสีรอบสุดท้าย ตรวจสอบความผิดปกติ เช็คสถานะเครื่องจักร และส่งมอบเอกสารครบถ้วนและถูกต้อง เพื่อให้มั่นใจว่ากะถัดไปดำเนินงานต่อได้ทันที ตรงกับข้อใด", answer: "R" },
+            { q4.jpeg : "http://googleusercontent.com/image_collection/image_retrieval/9057692274237685538_0", text: "4. พนักงานเสนอไอเดียปรับลดการใช้สารเคมีในบ่อบำบัดด้วยเทคโนโลยีใหม่", answer: "N" },
+            { q5.jpeg : "http://googleusercontent.com/image_collection/image_retrieval/10733130674044062834_0", text: "ทุกคนภายในแผนกบ่อบำบัดน้ำเสีย สามารถดูแลและควบคุมระบบำบัดน้ำเสียทำให้คุณภาพน้ำบำบัดผ่านค่ามาตรฐาน และผู้คนสามารถนำน้ำบำบัดไปใช้โดยไม่รู้สึกผิดปกติ ตรงกับข้อใด", answer: "R" },
+            { q6.jpeg : "http://googleusercontent.com/image_collection/image_retrieval/10316150750373783413_0", text: "พนักงานกะ C ช่วยกันจัดการเหตุการสารเคมี Sodium Sulfide ล้น ทุกคนช่วยกันโดยไม่แบ่งว่าไม่ใช่หน้าที่ของตนเอง", answer: "T" },
+            { q7.jpeg : "http://googleusercontent.com/image_collection/image_retrieval/4055390080126835503_0", text: "7. ผู้รับเหมาเสนอเงินใต้โต๊ะแลกกับการเซ็นรับงานซ่อมบำรุง แต่พนักงานปฏิเสธ", answer: "I" },
+            { q8.jpeg : "http://googleusercontent.com/image_collection/image_retrieval/15244013459370850574_0", text: "นายนฤดี ปรับตัวตามนโยบายเปลี่ยนให้บันทึกข้อมูลผ่าน ระบบอิเล็กทรอนิกส์ นายนฤดีเรียนรู้และใช้งานทันที", answer: "A" },
+            { q9.JPEG : "http://googleusercontent.com/image_collection/image_retrieval/18392383905923425853_0", text: "พนักงานห้องปฏิบัติการฯ อธิบายขั้นตอนการจัดการสารเคมีอันตรายให้ ผู้เยี่ยมภายนอกได้อย่างถูกต้อง", answer: "M" },
             { img: "http://googleusercontent.com/image_collection/image_retrieval/583970515231448454_0", text: "10. สมัครเข้าอบรมระบบบำบัดน้ำเสียแบบชีวภาพขั้นสูงในช่วงวันหยุด", answer: "N" }
         ];
 

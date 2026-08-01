@@ -535,6 +535,10 @@
             { img: "", text: "10. สมัครเข้าอบรมระบบบำบัดน้ำเสียแบบชีวภาพขั้นสูงในช่วงวันหยุด", answer: "N" }
         ];
 
+        // 🔗 URL ของ Google Apps Script Web App (ดู Code.gs ที่แนบมาด้วย)
+        // นำ URL ที่ได้จากการ Deploy > New deployment > Web app มาใส่ตรงนี้
+        const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzBwd4k4PkTXwc2l4kc2xPH-R4qR4KBjFWolLFqqOlZP1GsDH5NFztLzkxUosHSBpI/exec";
+
         let gameQuestions = [...masterQuestions];
         let currentQIndex = 0;
         let timerInterval;
@@ -543,6 +547,8 @@
         let playerScores = {};
         let questionStartTime = 0;
         let lastTickSecond = null;
+        let gameAnswerLog = [];   // เก็บคำตอบทุกข้อของทุกคนไว้ส่งขึ้นชีตตอนจบเกม
+        let currentSessionId = "";
 
         function shuffleArray(arr) {
             const a = [...arr];
@@ -629,6 +635,8 @@
             gameQuestions = shuffleArray(masterQuestions);
             currentQIndex = 0;
             playerScores = {};
+            gameAnswerLog = [];
+            currentSessionId = 'S' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
             set(ref(db, 'players'), null);
             set(ref(db, 'answers'), null);
             showGetReady();
@@ -712,6 +720,26 @@
                 }
             }
             roundScorers.sort((a, b) => b.points - a.points);
+
+            // 📝 บันทึกคำตอบของ "ทุกคน" ในข้อนี้ (ถูก/ผิด/ไม่ตอบ) ไว้ส่งขึ้น Google Sheet ตอนจบเกม
+            for (let pName in allPlayers) {
+                const ans = liveAnswers[pName];
+                const isCorrect = !!ans && ans.answer === q.answer;
+                const timeTakenMs = ans ? (ans.time - questionStartTime) : null;
+                const points = isCorrect ? Math.max(100, Math.round(1000 - (timeTakenMs / 10))) : 0;
+                gameAnswerLog.push({
+                    qIndex: currentQIndex + 1,
+                    question: q.text,
+                    correctAnswer: q.answer,
+                    name: pName,
+                    team: allPlayers[pName].team,
+                    answer: ans ? ans.answer : null,
+                    correct: isCorrect,
+                    points: points,
+                    timeTakenMs: timeTakenMs
+                });
+            }
+
             showResult(q.answer, roundScorers);
         }
 
@@ -770,11 +798,39 @@
             currentQIndex++;
             if (currentQIndex >= gameQuestions.length) {
                 set(ref(db, 'gameState'), { phase: 'lobby' });
+                sendGameLogToSheet();
                 showTop5();
             } else {
                 showGetReady();
             }
         };
+
+        // 📤 ส่งคะแนนสรุป + คำตอบละเอียดทุกข้อของรอบนี้ขึ้น Google Sheet
+        function sendGameLogToSheet() {
+            if (!SHEET_WEBAPP_URL || SHEET_WEBAPP_URL.indexOf('ใส่ID_ที่นี่') !== -1) {
+                console.warn('ยังไม่ได้ตั้งค่า SHEET_WEBAPP_URL — ข้ามการบันทึกลง Google Sheet');
+                return;
+            }
+
+            const rankedPlayers = Object.values(playerScores)
+                .sort((a, b) => b.score - a.score)
+                .map((p, idx) => ({ name: p.name, team: p.team, score: p.score, rank: idx + 1 }));
+
+            const payload = {
+                sessionId: currentSessionId,
+                timestamp: new Date().toISOString(),
+                players: rankedPlayers,
+                answers: gameAnswerLog
+            };
+
+            // ใช้ text/plain + no-cors เพื่อเลี่ยงปัญหา CORS preflight กับ Apps Script Web App
+            fetch(SHEET_WEBAPP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            }).catch(err => console.error('ส่งข้อมูลขึ้น Google Sheet ไม่สำเร็จ:', err));
+        }
 
         let top5ConfettiInterval = null;
 

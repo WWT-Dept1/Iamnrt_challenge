@@ -120,26 +120,26 @@
         .view.active { display: flex; animation: viewEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
         @keyframes viewEnter { 0%{opacity:0; transform: translateY(25px) scale(0.98);} 100%{opacity:1; transform: translateY(0) scale(1);} }
 
-        .waiting-pulse { font-size: 22px; color: var(--ink); font-weight: 700; animation: chipFloat 3.2s ease-in-out infinite, pulseFade 1.6s ease-in-out infinite; background: var(--card-bg); border: 2px solid var(--cyan); padding: 15px 34px; border-radius: 26px; box-shadow: 0 10px 24px rgba(36,24,51,0.22); }
+        .waiting-pulse { font-size: 28px; color: var(--ink); font-weight: 700; animation: chipFloat 3.2s ease-in-out infinite, pulseFade 1.6s ease-in-out infinite; background: var(--card-bg); border: 3px solid var(--cyan); padding: 20px 44px; border-radius: 32px; box-shadow: 0 12px 28px rgba(36,24,51,0.22); }
         @keyframes pulseFade { 0%,100%{opacity:0.75;} 50%{opacity:1;} }
 
         /* ===== LOBBY ===== */
-        .title-logo { font-family: var(--font-display); font-size: 100px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; animation: floatLogo 3s ease-in-out infinite, logoGlow 2.4s ease-in-out infinite; color: #fff; -webkit-text-stroke: 3px var(--ink); text-shadow: 6px 6px 0 rgba(36,24,51,0.25); }
-        .title-logo span { color: var(--gold); -webkit-text-stroke: 3px var(--ink); }
+        .title-logo { font-family: var(--font-display); font-size: 140px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; animation: floatLogo 3s ease-in-out infinite, logoGlow 2.4s ease-in-out infinite; color: #fff; -webkit-text-stroke: 4px var(--ink); text-shadow: 8px 8px 0 rgba(36,24,51,0.25); }
+        .title-logo span { color: var(--gold); -webkit-text-stroke: 4px var(--ink); }
         @keyframes floatLogo { 0%,100%{transform:translateY(0) rotate(-1deg);} 50%{transform:translateY(-14px) rotate(1deg);} }
         @keyframes logoGlow {
             0%, 100% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
             50% { filter: drop-shadow(0 0 26px rgba(255,255,255,0.75)); }
         }
-        .subtitle { font-size: 21px; color: var(--ink); margin-bottom: 25px; font-weight: 700; background: var(--card-bg); border: 2px solid var(--coral); padding: 12px 30px; border-radius: 40px; backdrop-filter: blur(6px); display: inline-block; box-shadow: 0 10px 26px rgba(36,24,51,0.22); animation: chipFloat 3.6s ease-in-out infinite 0.15s; }
+        .subtitle { font-size: 30px; color: var(--ink); margin-bottom: 34px; font-weight: 700; background: var(--card-bg); border: 3px solid var(--coral); padding: 16px 42px; border-radius: 46px; backdrop-filter: blur(6px); display: inline-block; box-shadow: 0 12px 30px rgba(36,24,51,0.22); animation: chipFloat 3.6s ease-in-out infinite 0.15s; }
         .start-btn {
             position: relative; overflow: hidden;
             background: linear-gradient(135deg, var(--coral), var(--violet));
             background-size: 200% 200%;
             animation: shimmerBtn 3s ease infinite, ctaGlowPulse 1.8s ease-in-out infinite;
-            color: #fff; border: 3px solid var(--ink);
-            padding: 18px 60px; font-size: 28px; font-weight: 700; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 8px 0 var(--ink), 0 18px 34px rgba(36,24,51,0.3); margin-top: 25px; font-family: var(--font-display);
+            color: #fff; border: 4px solid var(--ink);
+            padding: 26px 84px; font-size: 40px; font-weight: 700; border-radius: 60px; cursor: pointer;
+            box-shadow: 0 10px 0 var(--ink), 0 22px 40px rgba(36,24,51,0.3); margin-top: 34px; font-family: var(--font-display);
             transition: transform 0.12s, box-shadow 0.12s;
         }
         @keyframes ctaGlowPulse {
@@ -168,9 +168,9 @@
         @keyframes popIn { 0%{transform:scale(0.3); opacity:0;} 70%{transform:scale(1.08);} 100%{transform:scale(1); opacity:1;} }
 
         /* ===== GET READY ===== */
-        .get-ready-card { background: var(--card-bg); border: 3px solid var(--gold); border-radius: 32px; padding: 45px 70px; backdrop-filter: blur(8px); box-shadow: 0 18px 44px rgba(36,24,51,0.25); }
-        .get-ready-num { font-family: var(--font-display); font-weight: 800; font-size: 108px; color: var(--coral); animation: zoomPunch 0.65s cubic-bezier(0.34,1.56,0.64,1); }
-        .get-ready-sub { font-size: 24px; color: var(--ink); margin-top: 10px; font-weight: 700; animation: fadeSlideUp 0.5s ease-out 0.25s backwards; }
+        .get-ready-card { background: var(--card-bg); border: 4px solid var(--gold); border-radius: 42px; padding: 70px 110px; backdrop-filter: blur(8px); box-shadow: 0 24px 58px rgba(36,24,51,0.28); }
+        .get-ready-num { font-family: var(--font-display); font-weight: 800; font-size: 160px; color: var(--coral); animation: zoomPunch 0.65s cubic-bezier(0.34,1.56,0.64,1); }
+        .get-ready-sub { font-size: 34px; color: var(--ink); margin-top: 16px; font-weight: 700; animation: fadeSlideUp 0.5s ease-out 0.25s backwards; }
         @keyframes zoomPunch { 0%{transform:scale(0.2) rotate(-8deg); opacity:0;} 60%{transform:scale(1.25) rotate(3deg); opacity:1;} 100%{transform:scale(1) rotate(0);} }
         @keyframes fadeSlideUp { 0%{transform:translateY(14px); opacity:0;} 100%{transform:translateY(0); opacity:1;} }
 
@@ -205,10 +205,10 @@
         .answered-count { position: relative; z-index: 1; margin-top: 16px; font-size: 17px; color: var(--ink); font-weight: 700; background: var(--card-bg); border: 2px solid var(--violet); padding: 9px 24px; border-radius: 24px; backdrop-filter: blur(6px); box-shadow: 0 8px 20px rgba(36,24,51,0.2); }
 
         /* ===== RESULT (correct answer reveal) ===== */
-        .result-headline { position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; padding: 40px 0; }
-        .result-text { position: relative; z-index: 2; font-size: 56px; font-weight: 800; margin: 0; font-family: var(--font-display); background: var(--card-bg); color: var(--ink); border: 3px solid var(--gold); padding: 18px 48px; border-radius: 26px; backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(36,24,51,0.25); }
+        .result-headline { position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 26px; padding: 50px 0; }
+        .result-text { position: relative; z-index: 2; font-size: 76px; font-weight: 800; margin: 0; font-family: var(--font-display); background: var(--card-bg); color: var(--ink); border: 4px solid var(--gold); padding: 24px 62px; border-radius: 32px; backdrop-filter: blur(8px); box-shadow: 0 14px 38px rgba(36,24,51,0.25); }
         .result-glow {
-            position: absolute; width: 440px; height: 440px; border-radius: 50%;
+            position: absolute; width: 560px; height: 560px; border-radius: 50%;
             background: radial-gradient(circle, rgba(255,255,255,0.6), rgba(255,196,0,0.25) 45%, transparent 70%);
             filter: blur(10px); z-index: 0;
             animation: glowPulse 1.8s ease-in-out infinite;
@@ -334,65 +334,65 @@
         .next-btn:active { transform: translateY(4px) scale(0.97); box-shadow: 0 2px 0 var(--ink), 0 6px 14px rgba(36,24,51,0.28); }
 
         /* ===== LEADERBOARD / TEAM BREAKDOWN ===== */
-        .leaderboard-title { font-size: 36px; font-weight: 700; color: var(--ink); margin-bottom: 25px; font-family: var(--font-display); background: var(--card-bg); border: 3px solid var(--gold); padding: 14px 36px; border-radius: 26px; backdrop-filter: blur(6px); display: inline-block; box-shadow: 0 10px 26px rgba(36,24,51,0.22); animation: chipFloat 3.4s ease-in-out infinite; }
+        .leaderboard-title { font-size: 48px; font-weight: 700; color: var(--ink); margin-bottom: 34px; font-family: var(--font-display); background: var(--card-bg); border: 4px solid var(--gold); padding: 18px 46px; border-radius: 32px; backdrop-filter: blur(6px); display: inline-block; box-shadow: 0 12px 32px rgba(36,24,51,0.22); animation: chipFloat 3.4s ease-in-out infinite; }
         /* ===== TOP 5 INDIVIDUAL REVEAL ===== */
-        .top5-list { display: flex; flex-direction: column-reverse; gap: 12px; width: 640px; max-width: 92%; }
+        .top5-list { display: flex; flex-direction: column-reverse; gap: 16px; width: 880px; max-width: 94%; }
         .top5-row {
-            display: flex; align-items: center; gap: 18px; background: var(--card-bg); color: var(--ink); border: 2px solid rgba(36,24,51,0.12);
-            border-radius: 18px; padding: 14px 24px; animation: zoomPunch 0.5s cubic-bezier(0.34,1.56,0.64,1) backwards;
-            box-shadow: 0 8px 20px rgba(36,24,51,0.18);
+            display: flex; align-items: center; gap: 24px; background: var(--card-bg); color: var(--ink); border: 3px solid rgba(36,24,51,0.12);
+            border-radius: 24px; padding: 20px 34px; animation: zoomPunch 0.5s cubic-bezier(0.34,1.56,0.64,1) backwards;
+            box-shadow: 0 10px 26px rgba(36,24,51,0.18);
         }
-        .top5-row.rank-1 { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255,196,0,0.3); transform: scale(1.06); background: #FFF7DE; }
+        .top5-row.rank-1 { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(255,196,0,0.3); transform: scale(1.06); background: #FFF7DE; }
         .top5-row.rank-2 { border-color: var(--silver); background: #F1F4F9; }
         .top5-row.rank-3 { border-color: var(--bronze); background: #FFEBDA; }
         .top5-rank {
-            flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; font-size: 26px;
+            flex-shrink: 0; width: 72px; height: 72px; border-radius: 50%; font-size: 34px;
             display: flex; align-items: center; justify-content: center;
             background: rgba(36,24,51,0.06);
-            border: 2px solid rgba(36,24,51,0.14);
+            border: 3px solid rgba(36,24,51,0.14);
         }
         .top5-row.rank-1 .top5-rank { background: #FFEEA8; border-color: var(--gold); }
         .top5-row.rank-2 .top5-rank { background: #fff; border-color: var(--silver); }
         .top5-row.rank-3 .top5-rank { background: #FFD9AE; border-color: var(--bronze); }
-        .top5-name { flex: 1; text-align: left; font-size: 21px; font-weight: 700; }
-        .top5-name small { color: var(--ink-soft); font-weight: 500; }
-        .top5-score { font-family: var(--font-display); font-weight: 700; font-size: 25px; color: #1BA860; }
+        .top5-name { flex: 1; text-align: left; font-size: 30px; font-weight: 700; }
+        .top5-name small { color: var(--ink-soft); font-weight: 500; font-size: 0.65em; }
+        .top5-score { font-family: var(--font-display); font-weight: 700; font-size: 36px; color: #1BA860; }
 
         /* ===== GRAND FINALE (Tournament) — proper awards podium, 1st raised in the center ===== */
-        .finale-grid { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 20px; width: 92%; max-width: 1100px; }
+        .finale-grid { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 30px; width: 94%; max-width: 1400px; }
         .finale-card {
             position: relative; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-            width: 190px; padding: 34px 16px 22px;
-            background: var(--card-bg); border: 2px solid rgba(36,24,51,0.12); border-radius: 22px;
-            backdrop-filter: blur(6px); box-shadow: 0 10px 26px rgba(36,24,51,0.18);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+            width: 250px; padding: 46px 22px 30px;
+            background: var(--card-bg); border: 3px solid rgba(36,24,51,0.12); border-radius: 28px;
+            backdrop-filter: blur(6px); box-shadow: 0 14px 34px rgba(36,24,51,0.18);
             animation: cardRise 0.5s cubic-bezier(0.22,1,0.36,1) backwards;
             color: var(--ink);
         }
         .finale-card::before {
-            content: ""; position: absolute; top: 0; left: 18px; right: 18px; height: 7px; border-radius: 0 0 10px 10px;
+            content: ""; position: absolute; top: 0; left: 22px; right: 22px; height: 9px; border-radius: 0 0 12px 12px;
             background: var(--stripe-color, var(--violet));
         }
         .finale-card.is-champion {
-            border-color: var(--gold); box-shadow: 0 0 30px rgba(255,196,0,0.55), 0 0 0 4px rgba(255,196,0,0.3), 0 18px 34px rgba(36,24,51,0.25);
-            background: #FFF7DE; transform: scale(1.14); z-index: 2;
+            border-color: var(--gold); box-shadow: 0 0 40px rgba(255,196,0,0.55), 0 0 0 5px rgba(255,196,0,0.3), 0 22px 42px rgba(36,24,51,0.25);
+            background: #FFF7DE; transform: scale(1.16); z-index: 2;
             animation: cardRise 0.5s cubic-bezier(0.22,1,0.36,1) backwards, championGlow 1.8s ease-in-out infinite 0.5s;
         }
         @keyframes championGlow {
-            0%, 100% { box-shadow: 0 0 30px rgba(255,196,0,0.55), 0 0 0 4px rgba(255,196,0,0.3), 0 18px 34px rgba(36,24,51,0.25); }
-            50% { box-shadow: 0 0 48px rgba(255,196,0,0.85), 0 0 0 4px rgba(255,196,0,0.45), 0 18px 34px rgba(36,24,51,0.25); }
+            0%, 100% { box-shadow: 0 0 40px rgba(255,196,0,0.55), 0 0 0 5px rgba(255,196,0,0.3), 0 22px 42px rgba(36,24,51,0.25); }
+            50% { box-shadow: 0 0 62px rgba(255,196,0,0.85), 0 0 0 5px rgba(255,196,0,0.45), 0 22px 42px rgba(36,24,51,0.25); }
         }
         @keyframes cardRise { 0% { opacity: 0; transform: translateY(24px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-        .finale-rank { font-family: var(--font-display); font-weight: 700; font-size: 28px; }
-        .finale-team { font-size: 19px; font-weight: 700; text-align: center; }
-        .finale-score { font-family: var(--font-display); font-weight: 700; font-size: 28px; color: #1BA860; }
+        .finale-rank { font-family: var(--font-display); font-weight: 700; font-size: 40px; }
+        .finale-team { font-size: 26px; font-weight: 700; text-align: center; }
+        .finale-score { font-family: var(--font-display); font-weight: 700; font-size: 38px; color: #1BA860; }
         .finale-card.is-champion .finale-score { color: var(--bronze); }
 
         /* Podium ordering: rank 1 appended first, center it and lift it above 2nd/3rd */
-        .finale-card:nth-child(1) { order: 2; padding-top: 46px; }
-        .finale-card:nth-child(2) { order: 1; margin-bottom: 18px; }
-        .finale-card:nth-child(3) { order: 3; margin-bottom: 34px; }
-        .finale-card:nth-child(n+4) { order: 4; margin-bottom: 44px; opacity: 0.92; transform: scale(0.94); }
+        .finale-card:nth-child(1) { order: 2; padding-top: 60px; }
+        .finale-card:nth-child(2) { order: 1; margin-bottom: 24px; }
+        .finale-card:nth-child(3) { order: 3; margin-bottom: 46px; }
+        .finale-card:nth-child(n+4) { order: 4; margin-bottom: 58px; opacity: 0.92; transform: scale(0.94); }
 
         @keyframes shake { 0%, 100% {transform: translate(0,0);} 25% {transform: translate(-6px, 6px);} 50% {transform: translate(6px, -6px);} 75% {transform: translate(-6px, -6px);} }
         .anim-shake { animation: shake 0.3s; }
@@ -466,7 +466,7 @@
             <div class="result-badge-spin"><div class="result-badge"></div></div>
             <h2 id="result-status" class="result-text">⏰ หมดเวลา!</h2>
         </div>
-        <p class="subtitle">คำตอบที่ถูกต้องคือ: <span id="correct-answer-text" style="color: var(--ink); font-weight:bold; font-size:42px;">-</span></p>
+        <p class="subtitle">คำตอบที่ถูกต้องคือ: <span id="correct-answer-text" style="color: var(--ink); font-weight:bold; font-size:52px;">-</span></p>
     </div>
 
     <!-- Round Reveal (per-question score popup) -->
@@ -487,7 +487,7 @@
 
     <!-- 4. Grand Finale View -->
     <div id="view-grand-finale" class="view">
-        <h2 class="leaderboard-title" style="font-size: 52px;">🏆 Tournament Champion 🏆</h2>
+        <h2 class="leaderboard-title" style="font-size: 68px;">🏆 Tournament Champion 🏆</h2>
         <div class="finale-grid" id="grand-chart"></div>
     </div>
 

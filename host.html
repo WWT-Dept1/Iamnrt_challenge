@@ -811,7 +811,7 @@
         }
 
         function calculateScores() {
-            set(ref(db, 'gameState'), { phase: 'result' });
+            set(ref(db, 'gameState'), { phase: 'result', correctAnswer: q.answer });
             const q = gameQuestions[currentQIndex];
             let roundScorers = [];
 

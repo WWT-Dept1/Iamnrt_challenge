@@ -329,6 +329,31 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ================= ANSWER REVEAL (per-question result on the player's own phone) ================= */
+        .reveal-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+            z-index: 25; text-align: center; padding: 30px;
+            opacity: 0; transform: scale(0.9); pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .reveal-overlay.active { opacity: 1; transform: scale(1); pointer-events: auto; animation: revealPop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes revealPop { 0% { transform: scale(0.7); opacity: 0; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); } }
+        .reveal-overlay.is-correct { background: rgba(220, 255, 233, 0.97); }
+        .reveal-overlay.is-wrong { background: rgba(255, 231, 231, 0.97); }
+        .reveal-overlay.is-none { background: rgba(255, 246, 233, 0.97); }
+        .reveal-icon { font-size: 84px; line-height: 1; animation: iconBounce 0.9s ease-in-out infinite; }
+        @keyframes iconBounce { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(-4deg); } }
+        .reveal-status { font-family: var(--font-display); font-weight: 800; font-size: 32px; color: var(--ink); }
+        .reveal-overlay.is-correct .reveal-status { color: #1BA860; }
+        .reveal-overlay.is-wrong .reveal-status { color: var(--coral); }
+        .reveal-correct-answer {
+            font-size: 17px; font-weight: 700; color: var(--ink);
+            background: #fff; border: 2px solid var(--card-border); border-radius: 18px;
+            padding: 14px 26px; box-shadow: 0 8px 20px rgba(36,24,51,0.18);
+        }
+        .reveal-correct-answer span { font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
@@ -353,8 +378,8 @@
             <div class="setup-sub">กรอกชื่อและเลือกทีมของคุณเพื่อร่วมสนุก</div>
             <input type="text" id="playerName" placeholder="ชื่อผู้เล่น (เช่น Aof)">
             <select id="teamName">
-                <option value="Team 1">🟠 Team 1</option><option value="Team 2">🔵 Team 2</option>
-                <option value="Team 3">🟣 Team 3</option><option value="Team 4">🟢 Team 4</option><option value="Team 5">🩷 Team 5</option>
+                <option value="กลุ่มคุณนิคม">🟠 กลุ่มคุณนิคม</option><option value="กลุ่มคุณนรินทร์">🔵 กลุ่มคุณนรินทร์</option>
+                <option value="กลุ่มคุณกิตติศักดิ์">🟣 กลุ่มคุณกิตติศักดิ์</option><option value="กลุ่มคุณนพเกล้า">🟢 กลุ่มคุณนพเกล้า</option><option value="กลุ่มคุณฐาปกรณ์">🩷 กลุ่มคุณฐาปกรณ์</option><option value="ผู้เล่นอิสระ">🎈 ผู้เล่นอิสระ</option>
             </select>
             <button class="start-btn" onclick="joinGame()">🎉 เข้าสู่ระบบเกม</button>
         </div>
@@ -377,6 +402,11 @@
         <div id="lock-overlay" class="lock-overlay">
             <div class="spinner-lights"></div>
             <div>รอสัญญาณจากจอทีวี... ⏳</div>
+        </div>
+        <div id="reveal-overlay" class="reveal-overlay">
+            <div class="reveal-icon" id="reveal-icon">🎉</div>
+            <div class="reveal-status" id="reveal-status">ถูกต้อง!</div>
+            <div class="reveal-correct-answer">คำตอบที่ถูกต้องคือ: <span id="reveal-answer-text">-</span></div>
         </div>
     </div>
 
@@ -462,6 +492,7 @@
                 confirm() { tone(720, 0.09, 'triangle', 0.18); tone(1080, 0.12, 'triangle', 0.16, 0.09); },
                 lock() { tone(300, 0.12, 'sawtooth', 0.12); },
                 success() { tone(660, 0.1, 'triangle', 0.18); tone(880, 0.12, 'triangle', 0.18, 0.1); tone(1320, 0.22, 'triangle', 0.2, 0.2); },
+                wrong() { tone(220, 0.14, 'sawtooth', 0.16); tone(160, 0.2, 'sawtooth', 0.14, 0.1); },
                 bgmStart() {
                     getCtx();
                     if (bgmPlaying) return;
@@ -513,7 +544,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let pName = "", tName = "", hasAnswered = false;
+        let pName = "", tName = "", hasAnswered = false, lastAnswer = null;
+        const VALUE_LABELS = { I: 'I - สัตย์ซื่อ', A: 'A - คล่องตัว', M: 'M - มืออาชีพ', N: 'N - ไม่หยุดนิ่ง', R: 'R - วางใจได้', T: 'T - ร่วมมือ' };
 
         window.joinGame = function() {
             window.AudioFX && AudioFX.unlock();
@@ -533,8 +565,11 @@
             onValue(ref(db, 'gameState'), (snapshot) => {
                 const state = snapshot.val() || { phase: 'lobby' };
                 const hint = document.getElementById('controller-hint');
+                const revealEl = document.getElementById('reveal-overlay');
                 if(state.phase === 'question') {
                     hasAnswered = false;
+                    lastAnswer = null;
+                    revealEl.classList.remove('active');
                     if (state.order && Array.isArray(state.order)) {
                         const grid = document.querySelector('.grid-buttons');
                         state.order.forEach(letter => {
@@ -545,19 +580,51 @@
                     document.querySelectorAll('.btn-choice').forEach(b => b.disabled = false);
                     document.getElementById('lock-overlay').classList.remove('active');
                     if (hint) hint.innerText = 'เลือกคำตอบของคุณ!';
+                } else if (state.phase === 'result') {
+                    document.querySelectorAll('.btn-choice').forEach(b => b.disabled = true);
+                    document.getElementById('lock-overlay').classList.remove('active');
+                    showReveal(state.correctAnswer);
                 } else {
                     document.querySelectorAll('.btn-choice').forEach(b => b.disabled = true);
                     document.getElementById('lock-overlay').classList.add('active');
+                    revealEl.classList.remove('active');
                     const lockText = document.getElementById('lock-overlay').lastElementChild;
                     if(state.phase === 'lobby') { lockText.innerText = "รอเริ่มเกม... ⏳"; if (hint) hint.innerText = 'รอคำถามจากจอทีวี...'; }
-                    else if(state.phase === 'result') { lockText.innerText = "หมดเวลา! ดูผลที่หน้าจอ 📺"; if (hint) hint.innerText = 'ดูผลบนจอทีวี'; }
                 }
             });
         };
 
+        function showReveal(correctAnswer) {
+            const revealEl = document.getElementById('reveal-overlay');
+            const icon = document.getElementById('reveal-icon');
+            const status = document.getElementById('reveal-status');
+            const answerText = document.getElementById('reveal-answer-text');
+            answerText.innerText = VALUE_LABELS[correctAnswer] || correctAnswer || '-';
+
+            revealEl.classList.remove('is-correct', 'is-wrong', 'is-none');
+            if (lastAnswer === null) {
+                revealEl.classList.add('is-none');
+                icon.textContent = '😅';
+                status.textContent = 'หมดเวลา! ไม่ได้ตอบ';
+                AudioFX.wrong();
+            } else if (lastAnswer === correctAnswer) {
+                revealEl.classList.add('is-correct');
+                icon.textContent = '🎉';
+                status.textContent = 'ถูกต้อง!';
+                AudioFX.success();
+            } else {
+                revealEl.classList.add('is-wrong');
+                icon.textContent = '😢';
+                status.textContent = 'ยังไม่ถูกต้อง';
+                AudioFX.wrong();
+            }
+            revealEl.classList.add('active');
+        }
+
         window.submitAnswer = function(ans) {
             if(hasAnswered) return;
             hasAnswered = true;
+            lastAnswer = ans;
             AudioFX.tap();
             document.querySelectorAll('.btn-choice').forEach(b => b.disabled = true);
             document.getElementById('lock-overlay').classList.add('active');

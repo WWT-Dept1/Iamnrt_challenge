@@ -30,7 +30,8 @@
             --font-body: 'Kanit', sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+        button, select { cursor: pointer; }
 
         body {
             min-height: 100vh;
@@ -220,6 +221,17 @@
             padding: 0; position: relative; z-index: 1;
         }
 
+        .mute-btn {
+            position: absolute; top: 14px; right: 14px; z-index: 5;
+            font-size: 17px; width: 38px; height: 38px; border-radius: 50%;
+            border: 2px solid var(--gold); background: var(--card-bg); backdrop-filter: blur(6px);
+            box-shadow: 0 6px 16px rgba(36,24,51,0.2); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.15s;
+        }
+        .mute-btn:active { transform: scale(0.9); }
+        .mute-btn.is-muted { opacity: 0.55; }
+
         .mobile-header {
             text-align: center;
             font-family: var(--font-display);
@@ -351,6 +363,7 @@
 
     <div id="mobile-controller">
         <div class="marquee-lights"></div>
+        <button class="mute-btn" id="btn-mute" onclick="window.toggleMute()" title="เปิด/ปิดเสียง">🔊</button>
         <div class="mobile-header" id="player-info">📱 Your Controller</div>
         <div class="controller-hint" id="controller-hint">รอคำถามจากจอทีวี...</div>
         <div class="grid-buttons">
@@ -389,12 +402,14 @@
         // ---------- Lightweight synthesized sound effects (no external audio files) ----------
         const AudioFX = (function() {
             let ctx;
+            let muted = false;
             function getCtx() {
                 if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
                 if (ctx.state === 'suspended') ctx.resume();
                 return ctx;
             }
             function tone(freq, duration, type, vol, delay) {
+                if (muted) return;
                 delay = delay || 0;
                 const c = getCtx();
                 const osc = c.createOscillator();
@@ -407,14 +422,78 @@
                 gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
                 osc.start(start); osc.stop(start + duration + 0.02);
             }
+
+            // ---------- Background music: soft looping arpeggio, quiet on a phone speaker ----------
+            let bgmGain = null, bgmTimer = null, bgmStep = 0, bgmPlaying = false;
+            const bgmProgression = [
+                [261.63, 329.63, 392.00, 523.25],
+                [220.00, 261.63, 329.63, 440.00],
+                [246.94, 311.13, 369.99, 493.88],
+                [174.61, 220.00, 261.63, 349.23]
+            ];
+            function ensureBgmGain() {
+                const c = getCtx();
+                if (!bgmGain) { bgmGain = c.createGain(); bgmGain.gain.value = muted ? 0 : 0.06; bgmGain.connect(c.destination); }
+                return bgmGain;
+            }
+            function bgmNote(freq, start, dur, vol, type) {
+                const c = getCtx();
+                const g = ensureBgmGain();
+                const osc = c.createOscillator();
+                const ng = c.createGain();
+                osc.type = type; osc.frequency.value = freq;
+                osc.connect(ng).connect(g);
+                ng.gain.setValueAtTime(0.0001, start);
+                ng.gain.exponentialRampToValueAtTime(vol, start + 0.03);
+                ng.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+                osc.start(start); osc.stop(start + dur + 0.05);
+            }
+            function bgmTick() {
+                const c = getCtx();
+                const now = c.currentTime;
+                const chord = bgmProgression[Math.floor(bgmStep / 4) % bgmProgression.length];
+                const note = chord[bgmStep % chord.length];
+                bgmNote(note, now, 0.42, 0.5, 'triangle');
+                bgmStep++;
+            }
             return {
                 unlock() { getCtx(); },
                 tap() { tone(1100, 0.05, 'sine', 0.15); },
                 confirm() { tone(720, 0.09, 'triangle', 0.18); tone(1080, 0.12, 'triangle', 0.16, 0.09); },
                 lock() { tone(300, 0.12, 'sawtooth', 0.12); },
-                success() { tone(660, 0.1, 'triangle', 0.18); tone(880, 0.12, 'triangle', 0.18, 0.1); tone(1320, 0.22, 'triangle', 0.2, 0.2); }
+                success() { tone(660, 0.1, 'triangle', 0.18); tone(880, 0.12, 'triangle', 0.18, 0.1); tone(1320, 0.22, 'triangle', 0.2, 0.2); },
+                bgmStart() {
+                    getCtx();
+                    if (bgmPlaying) return;
+                    bgmPlaying = true;
+                    ensureBgmGain();
+                    bgmTick();
+                    bgmTimer = setInterval(bgmTick, 380);
+                },
+                bgmStop() {
+                    bgmPlaying = false;
+                    if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
+                },
+                isMuted() { return muted; },
+                setMuted(m) {
+                    muted = m;
+                    if (bgmGain) {
+                        const c = getCtx();
+                        bgmGain.gain.setTargetAtTime(muted ? 0 : 0.06, c.currentTime, 0.15);
+                    }
+                }
             };
         })();
+
+        window.toggleMute = function() {
+            const btn = document.getElementById('btn-mute');
+            const nowMuted = !AudioFX.isMuted();
+            AudioFX.setMuted(nowMuted);
+            if (btn) {
+                btn.textContent = nowMuted ? '🔇' : '🔊';
+                btn.classList.toggle('is-muted', nowMuted);
+            }
+        };
     </script>
 
     <script type="module">
@@ -442,6 +521,7 @@
             tName = document.getElementById('teamName').value;
             if(!pName) return alert('กรุณาใส่ชื่อครับ');
             AudioFX.confirm();
+            AudioFX.bgmStart();
 
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('mobile-controller').style.display = 'flex';

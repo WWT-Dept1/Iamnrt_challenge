@@ -26,7 +26,8 @@
             --font-display: 'Baloo 2', 'Kanit', sans-serif;
             --font-body: 'Kanit', sans-serif;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+        button { cursor: pointer; }
         body {
             background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-4), var(--bg-3), var(--bg-1));
             background-size: 400% 400%;
@@ -107,7 +108,12 @@
         .tv-header { position: absolute; top: 0; left: 0; right: 0; display: flex; flex-direction: column; z-index: 10; }
         .tv-header-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px 8px; }
         .header-brand { font-family: var(--font-display); font-weight: 700; font-size: 21px; letter-spacing: 0.5px; color: var(--ink); background: var(--card-bg); border: 2px solid var(--gold); padding: 9px 22px; border-radius: 30px; backdrop-filter: blur(6px); box-shadow: 0 8px 20px rgba(36,24,51,0.2); animation: chipFloat 3.4s ease-in-out infinite; }
+        .tv-header-right { display: flex; align-items: center; gap: 12px; }
         .player-count { font-size: 16px; color: var(--ink); font-weight: 700; transition: color 0.3s; background: var(--card-bg); padding: 9px 22px; border-radius: 30px; border: 2px solid rgba(36,24,51,0.12); backdrop-filter: blur(6px); box-shadow: 0 8px 20px rgba(36,24,51,0.2); animation: chipFloat 3.4s ease-in-out infinite 0.3s; }
+        .mute-btn { font-size: 19px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--gold); background: var(--card-bg); backdrop-filter: blur(6px); box-shadow: 0 8px 20px rgba(36,24,51,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s; animation: chipFloat 3.4s ease-in-out infinite 0.15s; }
+        .mute-btn:hover { transform: translateY(-2px) scale(1.08); }
+        .mute-btn:active { transform: translateY(1px) scale(0.94); }
+        .mute-btn.is-muted { opacity: 0.55; border-color: rgba(36,24,51,0.2); }
         @keyframes chipFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
         .view { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; position: relative; z-index: 1; }
@@ -414,7 +420,10 @@
     <div class="tv-header">
         <div class="tv-header-row">
             <div class="header-brand">🎈 IAMNRT CHALLENGE 🍭</div>
-            <div class="player-count" id="player-count-display">👥 รอผู้เล่นเข้าร่วม...</div>
+            <div class="tv-header-right">
+                <button class="mute-btn" id="btn-mute" onclick="window.toggleMute()" title="เปิด/ปิดเสียง">🔊</button>
+                <div class="player-count" id="player-count-display">👥 รอผู้เล่นเข้าร่วม...</div>
+            </div>
         </div>
         <div class="marquee-lights"></div>
     </div>
@@ -486,12 +495,14 @@
         // ---------- Lightweight synthesized sound effects (no external audio files) ----------
         const AudioFX = (function() {
             let ctx;
+            let muted = false;
             function getCtx() {
                 if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
                 if (ctx.state === 'suspended') ctx.resume();
                 return ctx;
             }
             function tone(freq, duration, type, vol, delay) {
+                if (muted) return;
                 delay = delay || 0;
                 const c = getCtx();
                 const osc = c.createOscillator();
@@ -504,6 +515,41 @@
                 gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
                 osc.start(start); osc.stop(start + duration + 0.02);
             }
+
+            // ---------- Background music: a light, upbeat looping arpeggio pad ----------
+            let bgmGain = null, bgmTimer = null, bgmStep = 0, bgmPlaying = false;
+            const bgmProgression = [
+                [261.63, 329.63, 392.00, 523.25], // C major
+                [220.00, 261.63, 329.63, 440.00], // A minor
+                [246.94, 311.13, 369.99, 493.88], // Bdim-ish / F major color
+                [174.61, 220.00, 261.63, 349.23]  // F major
+            ];
+            function ensureBgmGain() {
+                const c = getCtx();
+                if (!bgmGain) { bgmGain = c.createGain(); bgmGain.gain.value = muted ? 0 : 0.1; bgmGain.connect(c.destination); }
+                return bgmGain;
+            }
+            function bgmNote(freq, start, dur, vol, type) {
+                const c = getCtx();
+                const g = ensureBgmGain();
+                const osc = c.createOscillator();
+                const ng = c.createGain();
+                osc.type = type; osc.frequency.value = freq;
+                osc.connect(ng).connect(g);
+                ng.gain.setValueAtTime(0.0001, start);
+                ng.gain.exponentialRampToValueAtTime(vol, start + 0.03);
+                ng.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+                osc.start(start); osc.stop(start + dur + 0.05);
+            }
+            function bgmTick() {
+                const c = getCtx();
+                const now = c.currentTime;
+                const chord = bgmProgression[Math.floor(bgmStep / 4) % bgmProgression.length];
+                const note = chord[bgmStep % chord.length];
+                bgmNote(note, now, 0.42, 0.55, 'triangle');
+                if (bgmStep % 8 === 0) bgmNote(note / 2, now, 0.7, 0.3, 'sine'); // gentle bass pulse
+                bgmStep++;
+            }
             return {
                 unlock() { getCtx(); },
                 click() { tone(1000, 0.05, 'sine', 0.14); },
@@ -513,9 +559,39 @@
                 buzzer() { tone(150, 0.5, 'sawtooth', 0.22); tone(100, 0.6, 'sawtooth', 0.18, 0.05); },
                 reveal() { tone(659, 0.12, 'triangle', 0.2); tone(880, 0.14, 'triangle', 0.2, 0.12); tone(1318, 0.28, 'triangle', 0.22, 0.24); },
                 fanfare() { [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.28, 'triangle', 0.2, i * 0.14)); },
-                coin() { tone(988, 0.08, 'square', 0.13); tone(1318, 0.1, 'square', 0.13, 0.06); }
+                coin() { tone(988, 0.08, 'square', 0.13); tone(1318, 0.1, 'square', 0.13, 0.06); },
+                bgmStart() {
+                    getCtx();
+                    if (bgmPlaying) return;
+                    bgmPlaying = true;
+                    ensureBgmGain();
+                    bgmTick();
+                    bgmTimer = setInterval(bgmTick, 380);
+                },
+                bgmStop() {
+                    bgmPlaying = false;
+                    if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
+                },
+                isMuted() { return muted; },
+                setMuted(m) {
+                    muted = m;
+                    if (bgmGain) {
+                        const c = getCtx();
+                        bgmGain.gain.setTargetAtTime(muted ? 0 : 0.1, c.currentTime, 0.15);
+                    }
+                }
             };
         })();
+
+        window.toggleMute = function() {
+            const btn = document.getElementById('btn-mute');
+            const nowMuted = !AudioFX.isMuted();
+            AudioFX.setMuted(nowMuted);
+            if (btn) {
+                btn.textContent = nowMuted ? '🔇' : '🔊';
+                btn.classList.toggle('is-muted', nowMuted);
+            }
+        };
 
         // Confetti helper (used by inline module below via window scope)
         window.createConfetti = function() {
@@ -663,6 +739,7 @@
         window.startHostGame = function () {
             AudioFX.unlock();
             AudioFX.whoosh();
+            AudioFX.bgmStart();
             gameQuestions = shuffleArray(masterQuestions);
             currentQIndex = 0;
             playerScores = {};

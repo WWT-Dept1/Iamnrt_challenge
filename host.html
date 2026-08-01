@@ -175,15 +175,15 @@
         @keyframes fadeSlideUp { 0%{transform:translateY(14px); opacity:0;} 100%{transform:translateY(0); opacity:1;} }
 
         /* ===== QUESTION — big bright stage ===== */
-        .q-progress-badge { font-family: var(--font-display); font-weight: 700; font-size: 24px; color: var(--ink); background: var(--gold); padding: 9px 28px; border-radius: 22px; margin-bottom: 16px; box-shadow: 0 6px 16px rgba(36,24,51,0.25); border: 2px solid var(--ink); }
-        .question-stage { position: relative; width: 92%; max-width: 1080px; margin-bottom: 18px; }
-        .question-image-container { position: relative; z-index: 1; width: 100%; height: 520px; border-radius: 30px; overflow: hidden; border: 6px solid #fff; box-shadow: 0 24px 60px rgba(36,24,51,0.35), 0 0 0 4px var(--cyan), 0 0 40px rgba(33,193,224,0.5); animation: stageGlow 2.4s ease-in-out infinite; }
+        .q-progress-badge { font-family: var(--font-display); font-weight: 700; font-size: 27px; color: var(--ink); background: var(--gold); padding: 10px 32px; border-radius: 24px; margin-bottom: 18px; box-shadow: 0 6px 16px rgba(36,24,51,0.25); border: 2px solid var(--ink); }
+        .question-stage { position: relative; width: 95%; max-width: 1280px; margin-bottom: 20px; }
+        .question-image-container { position: relative; z-index: 1; width: 100%; height: 620px; border-radius: 34px; overflow: hidden; border: 6px solid #fff; box-shadow: 0 24px 60px rgba(36,24,51,0.35), 0 0 0 4px var(--cyan), 0 0 40px rgba(33,193,224,0.5); animation: stageGlow 2.4s ease-in-out infinite; }
         @keyframes stageGlow {
             0%, 100% { box-shadow: 0 24px 60px rgba(36,24,51,0.35), 0 0 0 4px var(--cyan), 0 0 30px rgba(33,193,224,0.4); }
             50% { box-shadow: 0 24px 60px rgba(36,24,51,0.35), 0 0 0 4px var(--cyan), 0 0 55px rgba(33,193,224,0.75); }
         }
         .question-image { width: 100%; height: 100%; object-fit: cover; }
-        .question-text { position: relative; z-index: 1; font-size: 40px; font-weight: 600; max-width: 1060px; margin-bottom: 18px; background: var(--card-bg); color: var(--ink); border: 2px solid var(--card-border); border-radius: 24px; padding: 24px 42px; backdrop-filter: blur(6px); box-shadow: 0 10px 28px rgba(36,24,51,0.2); line-height: 1.35; }
+        .question-text { position: relative; z-index: 1; font-size: 48px; font-weight: 600; max-width: 1260px; margin-bottom: 20px; background: var(--card-bg); color: var(--ink); border: 2px solid var(--card-border); border-radius: 26px; padding: 28px 48px; backdrop-filter: blur(6px); box-shadow: 0 10px 28px rgba(36,24,51,0.2); line-height: 1.3; }
 
         /* Countdown clock — bright white face, crisp colored ring, no more muddy dark */
         .countdown-clock {
@@ -255,27 +255,27 @@
         .reveal-card {
             position: relative; overflow: hidden;
             display: flex; flex-direction: column; align-items: center;
-            width: 880px; max-width: 94%;
-            padding: 60px 64px 56px;
+            width: 1120px; max-width: 96%;
+            padding: 74px 76px 68px;
             background: var(--card-bg);
-            border: 4px solid var(--violet);
-            border-radius: 40px;
-            box-shadow: 0 30px 70px rgba(36,24,51,0.32);
+            border: 5px solid var(--violet);
+            border-radius: 46px;
+            box-shadow: 0 34px 80px rgba(36,24,51,0.34);
             backdrop-filter: blur(10px);
             animation: cardPopIn 0.55s cubic-bezier(0.34,1.56,0.64,1) backwards;
         }
         .reveal-card::before {
-            content: ""; position: absolute; width: 420px; height: 420px; border-radius: 50%;
+            content: ""; position: absolute; width: 500px; height: 500px; border-radius: 50%;
             background: radial-gradient(circle, rgba(255,196,0,0.22), transparent 70%);
-            bottom: -160px; right: -120px; filter: blur(10px); z-index: 0;
+            bottom: -180px; right: -140px; filter: blur(10px); z-index: 0;
         }
         @keyframes cardPopIn { 0% { opacity: 0; transform: scale(0.82) translateY(24px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        .reveal-title { position: relative; z-index: 1; font-family: var(--font-display); font-weight: 700; font-size: 48px; color: var(--coral); margin-bottom: 30px; }
-        .reveal-list { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 14px; width: 100%; }
+        .reveal-title { position: relative; z-index: 1; font-family: var(--font-display); font-weight: 700; font-size: 60px; color: var(--coral); margin-bottom: 36px; }
+        .reveal-list { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 18px; width: 100%; }
         .reveal-row {
-            display: flex; align-items: center; gap: 20px; justify-content: flex-start; background: rgba(36,24,51,0.05);
+            display: flex; align-items: center; gap: 26px; justify-content: flex-start; background: rgba(36,24,51,0.05);
             color: var(--ink);
-            border: 2px solid rgba(36,24,51,0.1); border-radius: 20px; padding: 18px 30px; font-size: 25px;
+            border: 2px solid rgba(36,24,51,0.1); border-radius: 24px; padding: 24px 38px; font-size: 32px;
             animation: slideInReveal 0.5s ease-out backwards;
             transition: transform 0.15s;
         }
@@ -284,7 +284,7 @@
         .reveal-row:nth-child(3) { border-color: var(--bronze); background: rgba(255,140,26,0.12); }
         @keyframes slideInReveal { 0%{transform:translateX(-60px); opacity:0;} 100%{transform:translateX(0); opacity:1;} }
         .reveal-rank {
-            flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; font-size: 24px;
+            flex-shrink: 0; width: 68px; height: 68px; border-radius: 50%; font-size: 30px;
             display: flex; align-items: center; justify-content: center;
             background: rgba(36,24,51,0.08);
             border: 2px solid rgba(36,24,51,0.14);
@@ -293,12 +293,12 @@
         .reveal-row:nth-child(2) .reveal-rank { background: #EAEFF6; border-color: var(--silver); }
         .reveal-row:nth-child(3) .reveal-rank { background: #FFD9AE; border-color: var(--bronze); }
         .reveal-name { flex: 1; text-align: left; font-weight: 700; }
-        .reveal-name small { color: var(--ink-soft); font-size: 0.7em; }
-        .reveal-points { font-family: var(--font-display); font-weight: 700; color: #1BA860; font-size: 28px; }
+        .reveal-name small { color: var(--ink-soft); font-size: 0.65em; }
+        .reveal-points { font-family: var(--font-display); font-weight: 700; color: #1BA860; font-size: 36px; }
         .reveal-empty {
             position: relative; z-index: 1; display: flex; align-items: center; justify-content: center;
-            font-size: 28px; color: var(--ink); font-weight: 700; text-align: center;
-            padding: 40px 32px; border-radius: 24px; width: 100%;
+            font-size: 36px; color: var(--ink); font-weight: 700; text-align: center;
+            padding: 54px 40px; border-radius: 28px; width: 100%;
             background: rgba(123,63,255,0.08);
             border: 2px solid rgba(123,63,255,0.25);
             backdrop-filter: blur(12px);
@@ -308,11 +308,11 @@
 
         .next-btn {
             position: relative; z-index: 1; overflow: hidden;
-            margin-top: 40px;
+            margin-top: 46px;
             background: linear-gradient(135deg, var(--cyan), var(--violet));
             background-size: 200% 200%;
             animation: shimmerBtn 3s ease infinite;
-            color: #fff; border: 3px solid var(--ink); padding: 20px 58px; font-size: 27px; font-weight: 700;
+            color: #fff; border: 3px solid var(--ink); padding: 24px 66px; font-size: 32px; font-weight: 700;
             border-radius: 50px; cursor: pointer; font-family: var(--font-display);
             box-shadow: 0 6px 0 var(--ink), 0 14px 26px rgba(36,24,51,0.28);
             opacity: 0; transform: translateY(10px) scale(0.95); pointer-events: none;
@@ -631,12 +631,12 @@
 
         const masterQuestions = [
             { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q1.JPEG.jpeg", text: "นายณัฐวุฒิ ปลอมแปลงลายเซ็นนายนพดล เพื่อช่วยนายนพดล ที่ลืมเซ็นชื่อในใบ WWT CONSUMPTION เป็นการกระทำที่ไม่อยากเห็นในข้อใด?", answer: "I" },
-            { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q2.JPEG.jpeg", text: "เกิดเหตุไฟฟ้าดับทำให้ Blower No.1 หยุดทำงาน พนักงานรีบเปิดเครื่องกำเนิดไฟฟ้าทันที เพื่อไม่ให้ระบบบำบัดเกิดความเสียหาย ตรงกับข้อใด?", answer: "A" },
+            { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q2.JPEG.jpeg", text: "เกิดเหตุไฟฟ้าดับทำให้ Blower No.1 หยุดทำงาน พนักงานรีบเปิดเครื่องกำเหนิดไฟฟ้าทันที เพื่อไม่ให้ระบบบำบัดเกิดความเสียหาย ตรงกับข้อใด?", answer: "A" },
             { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q3.JPEG.jpeg", text: "พนักงานกะเช้าตรวจพบว่า Blower No.1 มีเสียงผิดปกติเล็กน้อย จึงบันทึกและแจ้งกะบ่ายไว้ ทำให้สามารถรับมือได้ก่อนเครื่องจะเกิดความเสียหาย", answer: "R" },
-            { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q4.JPEG.jpeg", text: "นายอ๋องศึกษาเกี่ยวกับการใช้เทคโนโลยี AI  เพื่อนำมาใช้พัฒนาควบคุมระบบบำบัดน้ำเสีย", answer: "N" },
+            { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q4.JPEG.jpeg", text: "นายบุญมีศีกษาเกี่ยวกับการใช้เทคโนโลยี AI  เพื่อนำมาใช้พัฒนาควบคุมระบบบำบัดน้ำเสีย", answer: "N" },
             { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q5.JPEG.jpeg", text: "ทีมงานควบคุมคุณภาพน้ำทิ้งอย่างมีประสิทธภาพทุกกะ ทำให้โรงงานไม่เคยถูกร้องเรียนเรื่องน้ำเสียจากชุมชนรอบข้างเลย", answer: "R" },
             { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q6.JPEG.jpeg", text: "พนักงานกะบ่าย ช่วยกันจัดการเหตุการสารเคมี Sodium Sulfide ล้น ทุกคนช่วยกัน ไม่มีใครปฏิเสธว่าไม่ใช่งานของตน", answer: "T" },
-            { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q7.JPEG.jpeg", text: "นายสุขใจทำอุปกรณ์ของบริษัทเสียหายโดยไม่ตั้งใจ จึงรีบแจ้งหัวหน้างานทันทีแทนที่จะปิดบัง เป็นการกระทำที่อยากเห็นในข้อใด", answer: "I" },
+            { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q7.JPEG.jpeg", text: "นายสุขใจทำอุปกรณ์ของบริษัทเสียหายโดยไม่ตั้งใจ จึงรีบแจ้งหัวหน้างานทันทีแทนที่จะปิดบัง", answer: "I" },
             { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q8.JPEG.jpeg", text: "นายนที ปรับตัวตามนโยบายเปลี่ยนให้บันทึกข้อมูลผ่านระบบอิเล็กทรอนิกส์ นายนทีเรียนรู้และใช้งานทันที", answer: "A" },
             { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q9.JPEG.jpeg", text: "พนักงานห้องปฏิบัติการฯ อธิบายขั้นตอนการจัดการสารเคมีอันตรายให้ ผู้เยี่ยมภายนอกได้อย่างถูกต้อง คือพฤติกรรมที่อยากเห็นนข้อใด", answer: "M" },
             { img: "https://wwt-dept1.github.io/Iamnrt_challenge/q10.JPEG.jpeg", text: "นายเก่ง เสนอไอเดียนำน้ำที่ผ่านการบำบัดแล้วกลับมาใช้ในระบบสุขภัณฑ์ แทนการนำไปล้างพื้นและรดน้ำต้นไม้", answer: "N" }

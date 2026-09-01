@@ -422,6 +422,22 @@
         @media(max-width:480px){.grid-buttons{gap:9px;padding:8px 10px 16px}.btn-choice{border-radius:20px;font-size:46px;border-width:4px}.btn-choice span.label{font-size:13px}.mobile-header{font-size:15px;padding:8px 18px}}
         @media(max-height:640px){.grid-buttons{gap:8px;padding-top:6px}.mobile-header{margin-top:8px;margin-bottom:4px}.controller-hint{font-size:12px;padding:4px 13px}.btn-choice{font-size:42px}.btn-choice span.label{font-size:12px}}
 
+
+        /* ===== V3 WOW: answer feedback ===== */
+        .reveal-overlay{overflow:hidden}
+        .reveal-overlay::before{content:"";position:absolute;width:130vmax;height:130vmax;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%) scale(.05);opacity:0;pointer-events:none}
+        .reveal-overlay.is-correct.active::before{background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.0) 0 9deg,rgba(255,255,255,.42) 9deg 14deg);animation:correctRay .9s ease-out forwards}
+        @keyframes correctRay{0%{transform:translate(-50%,-50%) scale(.05) rotate(0);opacity:.95}100%{transform:translate(-50%,-50%) scale(1) rotate(30deg);opacity:0}}
+        .reveal-overlay.is-correct.active .reveal-icon{animation:correctIconWow .8s cubic-bezier(.2,1.55,.25,1),iconBounce 1.1s ease-in-out .9s infinite}
+        .reveal-overlay.is-correct.active .reveal-status{animation:correctTextWow .72s cubic-bezier(.2,1.4,.25,1) .08s both}
+        .reveal-overlay.is-wrong.active{animation:wrongNudge .45s ease}
+        @keyframes correctIconWow{0%{transform:scale(.15) rotate(-25deg);opacity:0}65%{transform:scale(1.28) rotate(8deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+        @keyframes correctTextWow{0%{transform:translateY(22px) scale(.7);opacity:0}70%{transform:translateY(-4px) scale(1.12);opacity:1}100%{transform:none;opacity:1}}
+        @keyframes wrongNudge{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+        .mobile-celebrate{position:absolute;inset:0;z-index:28;pointer-events:none;overflow:hidden}
+        .mobile-star{position:absolute;left:50%;top:46%;font-size:var(--size,22px);animation:mobileStar .9s cubic-bezier(.2,.8,.25,1) forwards;filter:drop-shadow(0 4px 6px rgba(75,50,101,.12))}
+        @keyframes mobileStar{0%{transform:translate(-50%,-50%) scale(.2) rotate(0);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1) rotate(var(--rot));opacity:0}}
+
 </style>
 </head>
 <body>
@@ -659,6 +675,30 @@
             });
         };
 
+
+
+        function mobileCelebrate() {
+            const host = document.getElementById('mobile-controller');
+            const layer = document.createElement('div');
+            layer.className = 'mobile-celebrate';
+            const chars = ['✨','⭐','🎉','💫','🎊'];
+            for (let i=0;i<22;i++) {
+                const s = document.createElement('span');
+                s.className = 'mobile-star';
+                s.textContent = chars[i % chars.length];
+                const a = (Math.PI*2*i/22) + Math.random()*.3;
+                const d = 90 + Math.random()*190;
+                s.style.setProperty('--dx', Math.cos(a)*d + 'px');
+                s.style.setProperty('--dy', Math.sin(a)*d + 'px');
+                s.style.setProperty('--rot', (Math.random()*360-180) + 'deg');
+                s.style.setProperty('--size', (16 + Math.random()*18) + 'px');
+                s.style.animationDelay = (Math.random()*.12) + 's';
+                layer.appendChild(s);
+            }
+            host.appendChild(layer);
+            setTimeout(() => layer.remove(), 1200);
+        }
+
         function showReveal(correctAnswer) {
             const revealEl = document.getElementById('reveal-overlay');
             const icon = document.getElementById('reveal-icon');
@@ -677,6 +717,7 @@
                 icon.textContent = '🎉';
                 status.textContent = 'ถูกต้อง!';
                 AudioFX.success();
+                setTimeout(mobileCelebrate, 80);
             } else {
                 revealEl.classList.add('is-wrong');
                 icon.textContent = '😢';

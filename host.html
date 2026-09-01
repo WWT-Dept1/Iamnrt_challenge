@@ -559,6 +559,59 @@
             .view{padding:80px 12px 34px}.lobby-team-col{width:170px;min-height:145px}.start-btn{padding:18px 44px;font-size:28px}.question-image-container{height:48vh}.countdown-clock{width:110px;height:110px;right:-8px}.countdown-number{font-size:45px}
         }
 
+
+        /* =========================================================
+           V3 WOW MOMENTS — timed celebration, ranking & champion FX
+           ========================================================= */
+        .wow-burst-layer{position:fixed;inset:0;z-index:180;pointer-events:none;overflow:hidden}
+        .wow-spark{position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;background:var(--spark,#FFD84D);box-shadow:0 0 18px color-mix(in srgb,var(--spark,#FFD84D) 65%,transparent);animation:wowSpark .9s cubic-bezier(.17,.84,.44,1) forwards}
+        @keyframes wowSpark{0%{transform:translate(-50%,-50%) scale(.2);opacity:1}70%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.15);opacity:0}}
+        .wow-ring{position:fixed;left:50%;top:50%;z-index:175;width:120px;height:120px;border:9px solid rgba(255,255,255,.92);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);animation:wowRing .85s ease-out forwards;box-shadow:0 0 0 10px rgba(255,216,77,.30)}
+        @keyframes wowRing{0%{transform:translate(-50%,-50%) scale(.25);opacity:1}100%{transform:translate(-50%,-50%) scale(5.2);opacity:0}}
+        #view-result.wow-live .result-headline{animation:answerStageIn .75s cubic-bezier(.2,1.3,.3,1)}
+        #view-result.wow-live .result-text{animation:answerPunch .82s cubic-bezier(.2,1.45,.25,1), answerRainbow 1.8s ease-in-out .65s infinite}
+        #view-result.wow-live #correct-answer-text{display:inline-block;animation:answerLetter .75s cubic-bezier(.2,1.45,.25,1) .18s both}
+        @keyframes answerStageIn{0%{opacity:0;transform:scale(.65) rotate(-3deg)}70%{transform:scale(1.06) rotate(1deg)}100%{opacity:1;transform:scale(1)}}
+        @keyframes answerPunch{0%{transform:scale(.45);opacity:0}68%{transform:scale(1.14)}100%{transform:scale(1);opacity:1}}
+        @keyframes answerLetter{0%{transform:translateY(28px) scale(.7);opacity:0}70%{transform:translateY(-5px) scale(1.13)}100%{transform:none;opacity:1}}
+        @keyframes answerRainbow{0%,100%{filter:drop-shadow(0 0 0 rgba(255,255,255,0))}50%{filter:drop-shadow(0 0 18px rgba(255,216,77,.8))}}
+
+        .reveal-row.wow-enter{opacity:0;transform:translateY(34px) scale(.90)}
+        .reveal-row.wow-enter.wow-show{animation:rankCardPop .62s cubic-bezier(.2,1.35,.3,1) forwards}
+        .reveal-row.wow-enter.wow-show:nth-child(1){animation-name:rankWinnerPop}
+        @keyframes rankCardPop{0%{opacity:0;transform:translateY(34px) scale(.90)}70%{opacity:1;transform:translateY(-5px) scale(1.025)}100%{opacity:1;transform:none}}
+        @keyframes rankWinnerPop{0%{opacity:0;transform:translateY(45px) scale(.72) rotate(-2deg)}60%{opacity:1;transform:translateY(-8px) scale(1.08) rotate(1deg)}100%{opacity:1;transform:scale(1.03)}}
+        .reveal-row:first-child.wow-show::after{content:'⚡ FASTEST';position:absolute;right:24px;top:-13px;padding:5px 12px;border-radius:999px;background:linear-gradient(90deg,#FFD84D,#FF9D4D);color:#68451C;font-weight:800;font-size:13px;box-shadow:0 6px 14px rgba(255,166,55,.22);animation:badgeBounce .8s cubic-bezier(.2,1.5,.3,1)}
+        .reveal-row{position:relative}
+        @keyframes badgeBounce{0%{transform:scale(.2) rotate(-12deg);opacity:0}70%{transform:scale(1.15) rotate(3deg)}100%{transform:scale(1);opacity:1}}
+
+        .rank-announcer{position:fixed;inset:0;z-index:170;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(255,255,255,.08);backdrop-filter:blur(2px);animation:announcerFade 1.15s ease forwards}
+        .rank-announcer-card{padding:18px 38px;border-radius:30px;background:rgba(255,255,255,.94);border:5px solid #fff;box-shadow:0 24px 60px rgba(76,50,101,.22),0 0 0 7px rgba(255,216,77,.22);font-family:var(--font-display);font-weight:800;font-size:58px;color:#4B3363;animation:announcerPop .95s cubic-bezier(.2,1.5,.25,1)}
+        @keyframes announcerPop{0%{transform:scale(.35) rotate(-6deg);opacity:0}60%{transform:scale(1.12) rotate(2deg);opacity:1}100%{transform:scale(1)}}
+        @keyframes announcerFade{0%,75%{opacity:1}100%{opacity:0}}
+
+        .top5-row.wow-rank-in{opacity:0;transform:translateX(-80px) scale(.88)}
+        .top5-row.wow-rank-in.wow-show{animation:topRankIn .7s cubic-bezier(.2,1.25,.28,1) forwards}
+        @keyframes topRankIn{0%{opacity:0;transform:translateX(-80px) scale(.88)}68%{opacity:1;transform:translateX(8px) scale(1.025)}100%{opacity:1;transform:none}}
+        .top5-row.rank-1.wow-show{animation:topChampionIn .95s cubic-bezier(.2,1.4,.25,1) forwards,topChampionGlow 1.6s ease-in-out 1s infinite}
+        @keyframes topChampionIn{0%{opacity:0;transform:scale(.45) rotate(-4deg)}65%{opacity:1;transform:scale(1.12) rotate(1deg)}100%{opacity:1;transform:scale(1.06)}}
+        @keyframes topChampionGlow{0%,100%{box-shadow:0 14px 34px rgba(95,62,123,.12),0 0 0 5px rgba(255,216,77,.24)}50%{box-shadow:0 18px 42px rgba(255,166,55,.22),0 0 0 11px rgba(255,216,77,.08)}}
+
+        .champion-ribbon{position:absolute;left:50%;top:16px;transform:translateX(-50%) rotate(-2deg);z-index:8;padding:10px 26px;border-radius:999px;background:linear-gradient(90deg,#FF5F8F,#FF9D4D,#FFD84D);color:#fff;font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:1px;text-shadow:0 2px 4px rgba(91,52,88,.20);box-shadow:0 8px 20px rgba(255,123,95,.24);animation:ribbonDrop .9s cubic-bezier(.2,1.5,.25,1) .65s both}
+        @keyframes ribbonDrop{0%{transform:translate(-50%,-90px) rotate(-8deg) scale(.5);opacity:0}70%{transform:translate(-50%,4px) rotate(2deg) scale(1.08);opacity:1}100%{transform:translateX(-50%) rotate(-2deg) scale(1)}}
+        .champion-crown{position:absolute;left:50%;top:-78px;z-index:9;font-size:76px;filter:drop-shadow(0 10px 10px rgba(255,181,42,.25));animation:crownDrop 1.1s cubic-bezier(.18,1.55,.25,1) .2s both,crownFloat 1.8s ease-in-out 1.35s infinite}
+        @keyframes crownDrop{0%{transform:translate(-50%,-140px) rotate(-18deg) scale(.3);opacity:0}65%{transform:translate(-50%,10px) rotate(7deg) scale(1.18);opacity:1}100%{transform:translate(-50%,0) rotate(-2deg) scale(1)}}
+        @keyframes crownFloat{0%,100%{transform:translate(-50%,0) rotate(-2deg)}50%{transform:translate(-50%,-9px) rotate(2deg)}}
+        .finale-card.is-champion.wow-champion{animation:championCardEntrance 1.05s cubic-bezier(.2,1.38,.25,1) both,championFloatGlow 1.8s ease-in-out 1.1s infinite}
+        @keyframes championCardEntrance{0%{opacity:0;transform:translateY(80px) scale(.5) rotate(-4deg)}65%{opacity:1;transform:translateY(-12px) scale(1.22) rotate(2deg)}100%{transform:scale(1.16)}}
+        @keyframes championFloatGlow{0%,100%{box-shadow:0 18px 42px rgba(255,182,46,.24),0 0 0 7px rgba(255,216,77,.18);filter:brightness(1)}50%{box-shadow:0 26px 58px rgba(255,126,95,.28),0 0 0 15px rgba(255,216,77,.08);filter:brightness(1.06)}}
+        .finale-card.wow-runner{opacity:0;animation:runnerUpIn .72s cubic-bezier(.2,1.2,.3,1) forwards}
+        @keyframes runnerUpIn{0%{opacity:0;transform:translateY(55px) scale(.82)}100%{opacity:1}}
+        .finale-score.wow-score{animation:scoreGlow .7s ease}
+        @keyframes scoreGlow{0%{transform:scale(.7);opacity:.4}65%{transform:scale(1.18)}100%{transform:scale(1);opacity:1}}
+
+        @media (max-width:900px){.rank-announcer-card{font-size:38px;padding:14px 25px}.champion-crown{font-size:58px;top:-58px}.champion-ribbon{font-size:15px;padding:8px 16px}}
+
 </style>
 </head>
 <body>
@@ -1005,20 +1058,63 @@
             showResult(q.answer, roundScorers);
         }
 
+
+
+        // ===== V3 WOW MOMENT HELPERS =====
+        function wowBurst(intensity = 28, centerX = 50, centerY = 50) {
+            const layer = document.createElement('div');
+            layer.className = 'wow-burst-layer';
+            const colors = ['#FF5F8F','#FF9D4D','#FFD84D','#55D995','#43CBE8','#9B7BFF'];
+            for (let i = 0; i < intensity; i++) {
+                const s = document.createElement('span');
+                s.className = 'wow-spark';
+                const angle = (Math.PI * 2 * i / intensity) + Math.random() * .24;
+                const dist = 120 + Math.random() * 360;
+                s.style.left = centerX + '%';
+                s.style.top = centerY + '%';
+                s.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+                s.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+                s.style.setProperty('--spark', colors[i % colors.length]);
+                s.style.width = (8 + Math.random()*12) + 'px';
+                s.style.height = s.style.width;
+                s.style.animationDelay = (Math.random() * .12) + 's';
+                layer.appendChild(s);
+            }
+            document.body.appendChild(layer);
+            const ring = document.createElement('div');
+            ring.className = 'wow-ring';
+            document.body.appendChild(ring);
+            setTimeout(() => { layer.remove(); ring.remove(); }, 1200);
+        }
+
+        function rankAnnounce(text, duration = 1150) {
+            const el = document.createElement('div');
+            el.className = 'rank-announcer';
+            el.innerHTML = `<div class="rank-announcer-card">${text}</div>`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), duration + 80);
+        }
+
         function showResult(correctAnswer, roundScorers) {
             switchView('view-result');
+            const view = document.getElementById('view-result');
+            view.classList.remove('wow-live');
+            void view.offsetWidth;
+            view.classList.add('wow-live');
             const map = { 'I': 'I - สัตย์ซื่อ', 'A': 'A - คล่องตัว', 'M': 'M - มืออาชีพ', 'N': 'N - ไม่หยุดนิ่ง', 'R': 'R - วางใจได้', 'T': 'T - ร่วมมือ' };
             document.getElementById('correct-answer-text').innerText = map[correctAnswer];
             document.getElementById('correct-answer-text').style.color = `var(--color-${correctAnswer.toLowerCase()})`;
 
             AudioFX.reveal();
-            window.createConfetti();
+            wowBurst(36, 50, 50);
+            setTimeout(() => window.createConfetti(), 180);
             document.body.classList.add('anim-shake');
             setTimeout(() => document.body.classList.remove('anim-shake'), 300);
 
             setTimeout(() => {
+                view.classList.remove('wow-live');
                 showRoundReveal(roundScorers);
-            }, 2500);
+            }, 2700);
         }
 
         function showRoundReveal(roundScorers) {
@@ -1033,8 +1129,8 @@
             } else {
                 roundScorers.forEach((s, idx) => {
                     const row = document.createElement('div');
-                    row.className = 'reveal-row';
-                    row.style.animationDelay = `${idx * 0.25}s`;
+                    row.className = 'reveal-row wow-enter';
+                    row.style.animationDelay = '0s';
                     const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
                     row.innerHTML = `
                         <span class="reveal-rank">${medal}</span>
@@ -1043,14 +1139,16 @@
                     `;
                     container.appendChild(row);
                     setTimeout(() => {
+                        row.classList.add('wow-show');
+                        if (idx === 0) { wowBurst(18, 50, 46); }
                         countUp(document.getElementById(`reveal-pts-${idx}`), s.points, 700, '+');
                         AudioFX.coin();
-                    }, idx * 250 + 200);
+                    }, idx * 320 + 180);
                 });
                 window.createConfetti();
             }
 
-            const revealFinishDelay = roundScorers.length > 0 ? (roundScorers.length - 1) * 250 + 200 + 700 + 400 : 800;
+            const revealFinishDelay = roundScorers.length > 0 ? (roundScorers.length - 1) * 320 + 180 + 700 + 450 : 800;
             setTimeout(() => { nextBtn.classList.add('show'); }, revealFinishDelay);
         }
 
@@ -1118,7 +1216,7 @@
                 setTimeout(() => {
                     const rank = sorted.length - i;
                     const row = document.createElement('div');
-                    row.className = `top5-row rank-${rank}`;
+                    row.className = `top5-row rank-${rank} wow-rank-in`;
                     const medal = rank === 1 ? '👑' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
                     row.innerHTML = `
                         <span class="top5-rank">${medal}</span>
@@ -1126,13 +1224,14 @@
                         <span class="top5-score" id="top5-score-${rank}">0 pts</span>
                     `;
                     container.appendChild(row);
+                    rankAnnounce(rank === 1 ? '👑 อันดับ 1!' : `อันดับ ${rank}`, rank === 1 ? 1450 : 900);
+                    setTimeout(() => row.classList.add('wow-show'), rank === 1 ? 380 : 180);
                     AudioFX.reveal();
                     setTimeout(() => {
                         countUp(document.getElementById(`top5-score-${rank}`), p.score, 900, '', ' pts');
                     }, 200);
                     if (rank === 1) {
-                        AudioFX.fanfare();
-                        window.createConfetti();
+                        setTimeout(() => { AudioFX.fanfare(); wowBurst(48, 50, 48); window.createConfetti(); }, 500);
                         top5ConfettiInterval = setInterval(window.createConfetti, 1200);
                     } else {
                         window.createConfetti();
@@ -1175,7 +1274,7 @@
             sortedTeams.forEach((t, index) => {
                 const rank = index + 1;
                 const card = document.createElement('div');
-                card.className = `finale-card ${index === 0 ? 'is-champion' : ''}`;
+                card.className = `finale-card ${index === 0 ? 'is-champion wow-champion' : 'wow-runner'}`;
                 card.style.animationDelay = `${index * 0.12}s`;
                 const colorIdx = teamOrder.indexOf(t.name);
                 card.style.setProperty('--stripe-color', stripeColors[colorIdx >= 0 ? colorIdx % stripeColors.length : index % stripeColors.length]);
@@ -1192,16 +1291,24 @@
                 scoreText.className = 'finale-score';
                 scoreText.innerText = '0 pts';
 
+                if (index === 0) {
+                    const crown = document.createElement('div'); crown.className = 'champion-crown'; crown.textContent = '👑';
+                    const ribbon = document.createElement('div'); ribbon.className = 'champion-ribbon'; ribbon.textContent = 'CHAMPION!';
+                    card.appendChild(crown); card.appendChild(ribbon);
+                }
                 card.appendChild(rankText);
                 card.appendChild(nameText);
                 card.appendChild(scoreText);
                 chart.appendChild(card);
 
                 setTimeout(() => {
-                    countUp(scoreText, t.score, 900, '', ' pts');
+                    scoreText.classList.add('wow-score');
+                    countUp(scoreText, t.score, 1100, '', ' pts');
                     if (index === 0) {
-                        window.createConfetti();
-                        setInterval(window.createConfetti, 1800);
+                        rankAnnounce('🏆 ผู้ชนะประจำเกม!', 1700);
+                        setTimeout(() => { wowBurst(64, 50, 43); window.createConfetti(); AudioFX.fanfare(); }, 520);
+                        setTimeout(() => window.createConfetti(), 1300);
+                        setTimeout(() => window.createConfetti(), 2200);
                     }
                 }, index * 150 + 300);
             });

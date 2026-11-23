@@ -655,7 +655,8 @@
         .start-btn, .next-btn { text-shadow: 0 2px 0 rgba(42,27,66,.55), 0 0 10px rgba(42,27,66,.35); }
         .reveal-total { color: var(--ink); opacity: .85 !important; }
             .demo-btn { font-family: var(--font-body); font-size: 20px; font-weight: 700; color: #2A1B42; background: rgba(245,238,252,.96); border: 3px solid rgba(60,38,96,.28); border-radius: 36px; padding: 13px 26px; box-shadow: 0 10px 24px rgba(36,24,51,0.2); }
-        .demo-btn.on { background: #FFD84D; border-color: #2A1B42; }
+        .demo-btn { opacity: 0; transition: opacity .2s; }
+        .demo-btn:hover { opacity: .18; }
     </style>
 </head>
 <body>
@@ -930,17 +931,18 @@
             const display = document.getElementById('player-count-display');
             const count = Object.keys(allPlayers).length;
             if (!display) return;
-            display.innerText = count > 0 ? `👥 ผู้เล่นพร้อมแล้ว: ${count} คน${demoMode ? ' (Demo)' : ''}` : `👥 รอผู้เล่นเข้าร่วม...`;
+            display.innerText = count > 0 ? `👥 ผู้เล่นพร้อมแล้ว: ${count} คน` : `👥 รอผู้เล่นเข้าร่วม...`;
             display.style.color = count > 0 ? "#1BA860" : "var(--ink)";
         }
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'd' || e.key === 'D') && !e.ctrlKey && !e.metaKey && !e.altKey) window.toggleDemo();
+        });
         window.toggleDemo = function () {
             if (!document.getElementById('view-lobby').classList.contains('active')) return;   // สลับได้เฉพาะหน้า Lobby
             demoMode = !demoMode;
             allPlayers = demoMode ? buildDemoPlayers() : realPlayers;
             liveAnswers = {};
             const btn = document.getElementById('btn-demo');
-            btn.classList.toggle('on', demoMode);
-            btn.innerText = demoMode ? '🎬 Demo: เปิด' : '🎬 Demo: ปิด';
             refreshPlayerCountDisplay();
             renderLobby();
         };
@@ -975,7 +977,7 @@
             const display = document.getElementById('player-count-display');
             if (display) {
                 if (count > 0) {
-                    display.innerText = `👥 ผู้เล่นพร้อมแล้ว: ${count} คน${demoMode ? ' (Demo)' : ''}`;
+                    display.innerText = `👥 ผู้เล่นพร้อมแล้ว: ${count} คน`;
                     display.style.color = "#1BA860";
                 } else {
                     display.innerText = `👥 รอผู้เล่นเข้าร่วม...`;

@@ -654,6 +654,8 @@
         .title-logo span { color: #FFD84D; -webkit-text-stroke: 4px #2A1B42; paint-order: stroke fill; }
         .start-btn, .next-btn { text-shadow: 0 2px 0 rgba(42,27,66,.55), 0 0 10px rgba(42,27,66,.35); }
         .reveal-total { color: var(--ink); opacity: .85 !important; }
+            .demo-btn { font-family: var(--font-body); font-size: 20px; font-weight: 700; color: #2A1B42; background: rgba(245,238,252,.96); border: 3px solid rgba(60,38,96,.28); border-radius: 36px; padding: 13px 26px; box-shadow: 0 10px 24px rgba(36,24,51,0.2); }
+        .demo-btn.on { background: #FFD84D; border-color: #2A1B42; }
     </style>
 </head>
 <body>
@@ -670,6 +672,7 @@
         <div class="tv-header-row">
             <div class="header-brand">🎈 IAMNRT CHALLENGE 🍭</div>
             <div class="tv-header-right">
+                <button class="demo-btn" id="btn-demo" onclick="toggleDemo()" title="จำลองผู้เล่นเพื่อนำเสนอ">🎬 Demo: ปิด</button>
                 <button class="mute-btn" id="btn-mute" onclick="window.toggleMute()" title="เปิด/ปิดเสียง">🔊</button>
                 <div class="player-count" id="player-count-display">👥 รอผู้เล่นเข้าร่วม...</div>
             </div>
@@ -912,6 +915,36 @@
         let gameAnswerLog = [];   // เก็บคำตอบทุกข้อของทุกคนไว้ส่งขึ้นชีตตอนจบเกม
         let currentSessionId = "";
 
+        // ===== โหมด Demo: ผู้เล่นจำลอง ตอบถูกทุกข้อ เรียงตามลำดับนี้ (เร็วสุด -> ช้าสุด) =====
+        let demoMode = false;
+        let realPlayers = {};
+        const DEMO_TEAM = 'กลุ่มคุณนรินทร์';
+        const DEMO_PLAYERS = ['Gnek', 'Narinruk96', 'ตะวันออก110', 'ต๋', 'สถาพร แดงเหลือง'];
+        const DEMO_DELAYS = [1400, 2600, 3900, 5300, 6800];   // มิลลิวินาทีหลังโจทย์ขึ้น
+        function buildDemoPlayers() {
+            const o = {};
+            DEMO_PLAYERS.forEach(n => { o[n] = { name: n, team: DEMO_TEAM }; });
+            return o;
+        }
+        function refreshPlayerCountDisplay() {
+            const display = document.getElementById('player-count-display');
+            const count = Object.keys(allPlayers).length;
+            if (!display) return;
+            display.innerText = count > 0 ? `👥 ผู้เล่นพร้อมแล้ว: ${count} คน${demoMode ? ' (Demo)' : ''}` : `👥 รอผู้เล่นเข้าร่วม...`;
+            display.style.color = count > 0 ? "#1BA860" : "var(--ink)";
+        }
+        window.toggleDemo = function () {
+            if (!document.getElementById('view-lobby').classList.contains('active')) return;   // สลับได้เฉพาะหน้า Lobby
+            demoMode = !demoMode;
+            allPlayers = demoMode ? buildDemoPlayers() : realPlayers;
+            liveAnswers = {};
+            const btn = document.getElementById('btn-demo');
+            btn.classList.toggle('on', demoMode);
+            btn.innerText = demoMode ? '🎬 Demo: เปิด' : '🎬 Demo: ปิด';
+            refreshPlayerCountDisplay();
+            renderLobby();
+        };
+
         function shuffleArray(arr) {
             const a = [...arr];
             for (let i = a.length - 1; i > 0; i--) {
@@ -936,12 +969,13 @@
         }
 
         onValue(ref(db, 'players'), (snapshot) => {
-            allPlayers = snapshot.val() || {};
+            realPlayers = snapshot.val() || {};
+            if (!demoMode) allPlayers = realPlayers;
             const count = Object.keys(allPlayers).length;
             const display = document.getElementById('player-count-display');
             if (display) {
                 if (count > 0) {
-                    display.innerText = `👥 ผู้เล่นพร้อมแล้ว: ${count} คน`;
+                    display.innerText = `👥 ผู้เล่นพร้อมแล้ว: ${count} คน${demoMode ? ' (Demo)' : ''}`;
                     display.style.color = "#1BA860";
                 } else {
                     display.innerText = `👥 รอผู้เล่นเข้าร่วม...`;
@@ -979,6 +1013,7 @@
         }
 
         onValue(ref(db, 'answers'), (snapshot) => {
+            if (demoMode) return;   // โหมด Demo ไม่รับคำตอบจากมือถือจริง
             liveAnswers = snapshot.val() || {};
             const el = document.getElementById('answered-count');
             if (el && document.getElementById('view-question').classList.contains('active')) {
@@ -1062,6 +1097,17 @@
             let timeLeft = 10000;
             questionStartTime = Date.now();
             lastTickSecond = 10;
+
+            if (demoMode) {
+                DEMO_PLAYERS.forEach((name, i) => {
+                    const delay = DEMO_DELAYS[i] + Math.round((Math.random() - 0.5) * 300);
+                    later(() => {
+                        liveAnswers[name] = { name, team: DEMO_TEAM, answer: q.answer, time: questionStartTime + delay };
+                        const el = document.getElementById('answered-count');
+                        if (el) el.innerText = `ตอบแล้ว ${Object.keys(liveAnswers).length}/${Object.keys(allPlayers).length} คน`;
+                    }, delay);
+                });
+            }
 
             timerInterval = setInterval(() => {
                 timeLeft -= 50;
@@ -1290,6 +1336,7 @@
 
         // 📤 ส่งคะแนนสรุป + คำตอบละเอียดทุกข้อของรอบนี้ขึ้น Google Sheet
         function sendGameLogToSheet() {
+            if (demoMode) { console.log('โหมด Demo — ไม่ส่งข้อมูลขึ้น Google Sheet'); return; }
             if (!SHEET_WEBAPP_URL || SHEET_WEBAPP_URL.indexOf('ใส่ID_ที่นี่') !== -1) {
                 console.warn('ยังไม่ได้ตั้งค่า SHEET_WEBAPP_URL — ข้ามการบันทึกลง Google Sheet');
                 return;

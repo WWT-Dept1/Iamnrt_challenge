@@ -921,7 +921,18 @@
         let realPlayers = {};
         const DEMO_TEAM = 'กลุ่มคุณนรินทร์';
         const DEMO_PLAYERS = ['Gnek', 'Narinruk96', 'ตะวันออก110', 'ต๋', 'สถาพร แดงเหลือง'];
-        const DEMO_DELAYS = [1400, 2600, 3900, 5300, 6800];   // มิลลิวินาทีหลังโจทย์ขึ้น
+        // 2 ชื่อแรก (Gnek, Narinruk96) ตอบถูกทุกข้อ แต่บางข้อเร็ว บางข้อช้า (วินาที) และสลับกันนำได้
+        // ผลรวมยังสูงกว่า 3 ชื่อล่างตลอดทั้งเกม ลำดับในแถว = [Gnek, Narinruk96]
+        const DEMO_TOP_PLAN = [
+            [1.2, 2.8], [3.6, 1.5], [1.8, 4.5], [5.0, 2.2], [1.4, 1.0],
+            [2.6, 3.9], [4.2, 1.7], [1.1, 3.5], [2.9, 5.2], [1.6, 2.4]
+        ];
+        // 3 ชื่อล่าง: เวลาตอบเป็นวินาทีต่อข้อ, null = ตอบผิด -> อันดับสลับขึ้นลงได้ แต่ได้ไม่เกินข้อละ ~700
+        // ลำดับในแถว = [ตะวันออก110, ต๋, สถาพร แดงเหลือง]
+        const DEMO_LOW_PLAN = [
+            [4.0, null, 5.5], [null, 3.5, 4.8], [5.0, 6.0, 3.2], [3.8, null, null], [null, 4.2, 3.6],
+            [6.5, 3.4, null], [3.9, 5.1, 7.0], [null, 3.3, 4.4], [4.6, null, 3.7], [5.4, 3.9, null]
+        ];
         function buildDemoPlayers() {
             const o = {};
             DEMO_PLAYERS.forEach(n => { o[n] = { name: n, team: DEMO_TEAM }; });
@@ -1101,10 +1112,21 @@
             lastTickSecond = 10;
 
             if (demoMode) {
+                const qi = currentQIndex;
+                const plan = DEMO_LOW_PLAN[qi % DEMO_LOW_PLAN.length];
+                const wrongLetters = ['I', 'A', 'M', 'N', 'R', 'T'].filter(l => l !== q.answer);
                 DEMO_PLAYERS.forEach((name, i) => {
-                    const delay = DEMO_DELAYS[i] + Math.round((Math.random() - 0.5) * 300);
+                    let delay, ans = q.answer;
+                    if (i < 2) {
+                        delay = Math.round(DEMO_TOP_PLAN[qi % DEMO_TOP_PLAN.length][i] * 1000 + (Math.random() - 0.5) * 200);
+                    } else if (plan[i - 2] === null) {
+                        ans = wrongLetters[(qi + i) % wrongLetters.length];
+                        delay = 3500 + i * 700;
+                    } else {
+                        delay = Math.round(plan[i - 2] * 1000 + (Math.random() - 0.5) * 200);
+                    }
                     later(() => {
-                        liveAnswers[name] = { name, team: DEMO_TEAM, answer: q.answer, time: questionStartTime + delay };
+                        liveAnswers[name] = { name, team: DEMO_TEAM, answer: ans, time: questionStartTime + delay };
                         const el = document.getElementById('answered-count');
                         if (el) el.innerText = `ตอบแล้ว ${Object.keys(liveAnswers).length}/${Object.keys(allPlayers).length} คน`;
                     }, delay);

@@ -438,7 +438,34 @@
         .mobile-star{position:absolute;left:50%;top:46%;font-size:var(--size,22px);animation:mobileStar .9s cubic-bezier(.2,.8,.25,1) forwards;filter:drop-shadow(0 4px 6px rgba(75,50,101,.12))}
         @keyframes mobileStar{0%{transform:translate(-50%,-50%) scale(.2) rotate(0);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1) rotate(var(--rot));opacity:0}}
 
-</style>
+
+        /* =========================================================
+           V4 DEEPER TONE — เข้มขึ้นอีกนิด ลดความสว่างจ้า
+           ========================================================= */
+        :root {
+            --ink: #2A1B42;
+            --ink-soft: #5E4D7A;
+            --cream: #F6EEFA;
+            --card-bg: rgba(245,238,252,.96);
+            --card-border: rgba(60,38,96,.26);
+        }
+        body {
+            background:
+                radial-gradient(circle at 12% 12%, rgba(255,255,255,.2) 0 5%, transparent 18%),
+                linear-gradient(145deg,#E58BB4 0%,#F0B84A 30%,#62BEDD 62%,#9C80E6 100%);
+            background-size:130% 130%; animation:funBg 13s ease-in-out infinite alternate;
+        }
+        .spotlight-bg { opacity: .14; }
+        input, select { background: rgba(245,238,252,.98); border-color: #CDBEE3; color: #2A1B42; }
+        .reveal-overlay.is-correct { background: rgba(176,232,196,.97); }
+        .reveal-overlay.is-wrong { background: rgba(244,188,188,.97); }
+        .reveal-overlay.is-none { background: rgba(240,226,204,.97); }
+            #setup-screen { background: rgba(240,230,250,.96); box-shadow: 0 24px 60px rgba(42,27,66,.30), 0 0 0 6px rgba(42,27,66,.10); }
+        .stage-badge { background: #F3DE8E; color: #3F2B5C; }
+        .mobile-header, .lock-overlay { color: #2A1B42; }
+        .lock-overlay { background: rgba(236,224,246,.95); }
+        .reveal-overlay { color: #2A1B42; }
+    </style>
 </head>
 <body>
 

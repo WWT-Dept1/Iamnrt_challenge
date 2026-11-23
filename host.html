@@ -612,7 +612,49 @@
 
         @media (max-width:900px){.rank-announcer-card{font-size:38px;padding:14px 25px}.champion-crown{font-size:58px;top:-58px}.champion-ribbon{font-size:15px;padding:8px 16px}}
 
-</style>
+
+        /* =========================================================
+           V4 DEEPER TONE — เข้มขึ้นอีกนิด ลดความสว่างจ้า อ่านง่ายบนจอ TV
+           ========================================================= */
+        :root {
+            --ink: #2A1B42;
+            --ink-soft: #5E4D7A;
+            --cream: #F6EEFA;
+            --card-bg: rgba(245,238,252,0.96);
+            --card-border: rgba(60,38,96,0.26);
+            --silver: #C9CEE0;
+        }
+        body {
+            background:
+                radial-gradient(circle at 10% 15%, rgba(255,255,255,.22) 0 5%, transparent 16%),
+                radial-gradient(circle at 90% 20%, rgba(255,255,255,.16) 0 5%, transparent 16%),
+                linear-gradient(125deg, #E58BB4 0%, #F0B84A 26%, #62BEDD 55%, #9C80E6 80%, #6FCB93 100%);
+            background-size: 120% 120%;
+            animation: funBg 14s ease-in-out infinite alternate;
+        }
+        .sparkle-bg { opacity: .22; }
+        .header-brand, .player-count, .waiting-pulse, .subtitle, .leaderboard-title,
+        .get-ready-card, .reveal-card, .question-text, .answered-count, .result-text,
+        .lobby-team-col, .finale-card, .top5-row, .reveal-row {
+            background: rgba(245,238,252,.95);
+            border-color: rgba(60,38,96,.28);
+            color: var(--ink);
+        }
+        .reveal-row:nth-child(1), .top5-row.rank-1, .finale-card.is-champion { background: linear-gradient(135deg,#FBE9A0,#F4CC4E); }
+        .reveal-row:nth-child(2), .top5-row.rank-2 { background: linear-gradient(135deg,#E8EBF6,#CDD6EC); }
+        .reveal-row:nth-child(3), .top5-row.rank-3 { background: linear-gradient(135deg,#FBE0C8,#F2B98A); }
+        .player-chip { background: linear-gradient(135deg,#F1E8F8,#E7DAF3); border-color: rgba(60,38,96,.18); }
+        .lobby-team-count { background: #DCCDEE; color: #3F2B5C; }
+        .mute-btn { background: rgba(245,238,252,.96); }
+        .question-image { border-color: rgba(60,38,96,.45); }
+        .question-image-container, .question-stage .question-image-container { border-color: rgba(60,38,96,.4); }
+        .countdown-clock::before { background: #F3EAF8; }
+        .get-ready-card, .reveal-card { box-shadow: 0 22px 55px rgba(42,27,66,.32); }
+        .title-logo { color: #FFFFFF; -webkit-text-stroke: 4px #2A1B42; paint-order: stroke fill; text-shadow: 6px 6px 0 rgba(42,27,66,.35); }
+        .title-logo span { color: #FFD84D; -webkit-text-stroke: 4px #2A1B42; paint-order: stroke fill; }
+        .start-btn, .next-btn { text-shadow: 0 2px 0 rgba(42,27,66,.55), 0 0 10px rgba(42,27,66,.35); }
+        .reveal-total { color: var(--ink); opacity: .85 !important; }
+    </style>
 </head>
 <body>
 

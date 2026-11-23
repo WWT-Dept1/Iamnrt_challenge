@@ -1018,8 +1018,13 @@
         }
 
         function calculateScores() {
-            set(ref(db, 'gameState'), { phase: 'result', correctAnswer: q.answer });
+            // Resolve the current question before publishing its answer to Firebase.
             const q = gameQuestions[currentQIndex];
+            if (!q) {
+                console.error('ไม่พบคำถามปัจจุบัน:', currentQIndex);
+                return;
+            }
+            set(ref(db, 'gameState'), { phase: 'result', correctAnswer: q.answer });
             let roundScorers = [];
 
             for (let p in liveAnswers) {

@@ -833,6 +833,12 @@
             appId: "1:25350114059:web:a44040fd119858cfe0b00e",
             measurementId: "G-0558GH4DJL"
         };
+        // กันเสียง/เอฟเฟกต์พัง ไม่ให้ทำให้ลอจิกเกมหยุดกลางคัน
+        Object.keys(AudioFX).forEach(k => {
+            const f = AudioFX[k];
+            if (typeof f === 'function') AudioFX[k] = (...a) => { try { return f(...a); } catch (e) { console.warn('AudioFX.' + k, e); } };
+        });
+        const safe = (fn) => { try { fn(); } catch (e) { console.warn(e); } };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
@@ -938,6 +944,20 @@
             }
         });
 
+        // ===== ตัวจัดการ timer กลาง: กัน timeout เก่าค้างแล้วพาไปหน้าอื่นเอง =====
+        let phaseTimers = [];
+        let gameRunId = 0;
+        function later(fn, ms) {
+            const runId = gameRunId;
+            const id = setTimeout(() => { if (runId === gameRunId) fn(); }, ms);
+            phaseTimers.push(id);
+            return id;
+        }
+        function clearPhaseTimers() {
+            phaseTimers.forEach(clearTimeout);
+            phaseTimers = [];
+        }
+
         function switchView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
@@ -947,13 +967,17 @@
             AudioFX.unlock();
             AudioFX.whoosh();
             AudioFX.bgmStart();
+            gameRunId++;
+            clearPhaseTimers();
+            clearInterval(timerInterval);
+            if (top5ConfettiInterval) { clearInterval(top5ConfettiInterval); top5ConfettiInterval = null; }
             gameQuestions = shuffleArray(masterQuestions);
             currentQIndex = 0;
             playerScores = {};
             gameAnswerLog = [];
             currentSessionId = 'S' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
-            set(ref(db, 'players'), null);
             set(ref(db, 'answers'), null);
+            set(ref(db, 'gameState'), { phase: 'lobby' });
             showGetReady();
         };
 
@@ -961,10 +985,13 @@
             switchView('view-get-ready');
             AudioFX.whoosh();
             document.getElementById('get-ready-num').innerText = `ข้อที่ ${currentQIndex + 1} / ${gameQuestions.length}`;
-            setTimeout(() => { startQuestion(); }, 1500);
+            later(() => { startQuestion(); }, 1500);
         }
 
         function startQuestion() {
+            clearInterval(timerInterval);
+            questionClosed = false;
+            liveAnswers = {};
             const order = shuffleArray(['I', 'A', 'M', 'N', 'R', 'T']);
             set(ref(db, 'answers'), null);
             set(ref(db, 'gameState'), { phase: 'question', qIndex: currentQIndex, order: order });
@@ -1011,10 +1038,32 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    AudioFX.buzzer();
-                    calculateScores();
+                    finishQuestion();
                 }
             }, 50);
+        }
+
+        let questionClosed = false;
+        function finishQuestion() {
+            if (questionClosed) return;
+            questionClosed = true;
+            const qIdx = currentQIndex;
+            AudioFX.buzzer();
+            try {
+                calculateScores();
+            } catch (err) {
+                console.error('calculateScores error:', err);
+                const qq = gameQuestions[qIdx];
+                showResult(qq ? qq.answer : 'I', []);
+            }
+            // watchdog: ถ้าผ่านไป 1.5 วิแล้วยังค้างหน้าคำถาม บังคับไปหน้าเฉลย
+            setTimeout(() => {
+                if (qIdx === currentQIndex && document.getElementById('view-question').classList.contains('active')) {
+                    console.error('ค้างหน้าคำถาม — บังคับไปหน้าเฉลย');
+                    const qq = gameQuestions[qIdx];
+                    showResult(qq ? qq.answer : 'I', []);
+                }
+            }, 1500);
         }
 
         function calculateScores() {
@@ -1024,7 +1073,7 @@
                 console.error('ไม่พบคำถามปัจจุบัน:', currentQIndex);
                 return;
             }
-            set(ref(db, 'gameState'), { phase: 'result', correctAnswer: q.answer });
+            safe(() => set(ref(db, 'gameState'), { phase: 'result', correctAnswer: q.answer }));
             let roundScorers = [];
 
             for (let p in liveAnswers) {
@@ -1040,6 +1089,13 @@
                 }
             }
             roundScorers.sort((a, b) => b.points - a.points);
+
+            // ผู้เล่นทุกคนต้องมีในตารางคะแนน แม้ตอบผิด/ไม่ตอบ (ได้ +0)
+            for (let pName in allPlayers) {
+                if (!playerScores[pName]) {
+                    playerScores[pName] = { name: pName, team: allPlayers[pName].team, score: 0 };
+                }
+            }
 
             // 📝 บันทึกคำตอบของ "ทุกคน" ในข้อนี้ (ถูก/ผิด/ไม่ตอบ) ไว้ส่งขึ้น Google Sheet ตอนจบเกม
             for (let pName in allPlayers) {
@@ -1111,14 +1167,15 @@
             document.getElementById('correct-answer-text').style.color = `var(--color-${correctAnswer.toLowerCase()})`;
 
             AudioFX.reveal();
-            wowBurst(36, 50, 50);
-            setTimeout(() => window.createConfetti(), 180);
+            safe(() => wowBurst(36, 50, 50));
+            later(() => safe(() => window.createConfetti()), 180);
             document.body.classList.add('anim-shake');
             setTimeout(() => document.body.classList.remove('anim-shake'), 300);
 
-            setTimeout(() => {
+            later(() => {
                 view.classList.remove('wow-live');
-                showRoundReveal(roundScorers);
+                try { showRoundReveal(roundScorers); }
+                catch (e) { console.error(e); document.getElementById('btn-next-round').classList.add('show'); }
             }, 2700);
         }
 
@@ -1129,10 +1186,25 @@
             const nextBtn = document.getElementById('btn-next-round');
             nextBtn.classList.remove('show');
 
-            if (roundScorers.length === 0) {
-                container.innerHTML = `<div class="reveal-empty">รอบนี้ไม่มีใครตอบถูกเลย! 😢</div>`;
+            const gained = {};
+            roundScorers.forEach(s => { gained[s.name] = s.points; });
+
+            // เรียงตามคะแนนสะสม (ถ้าเท่ากันดูคะแนนรอบนี้) แสดง 8 อันดับแรกให้พอดีหน้าจอ TV
+            const rows = Object.values(playerScores)
+                .map(p => ({ name: p.name, team: p.team, total: p.score, gain: gained[p.name] || 0 }))
+                .sort((a, b) => b.total - a.total || b.gain - a.gain)
+                .slice(0, 8);
+
+            if (rows.length === 0) {
+                container.innerHTML = `<div class="reveal-empty">ยังไม่มีข้อมูลคะแนนผู้เล่น</div>`;
             } else {
-                roundScorers.forEach((s, idx) => {
+                if (roundScorers.length === 0) {
+                    const note = document.createElement('div');
+                    note.className = 'reveal-empty';
+                    note.innerText = 'รอบนี้ไม่มีใครตอบถูกเลย! 😢';
+                    container.appendChild(note);
+                }
+                rows.forEach((s, idx) => {
                     const row = document.createElement('div');
                     row.className = 'reveal-row wow-enter';
                     row.style.animationDelay = '0s';
@@ -1140,26 +1212,30 @@
                     row.innerHTML = `
                         <span class="reveal-rank">${medal}</span>
                         <span class="reveal-name">${s.name} <small>(${s.team})</small></span>
-                        <span class="reveal-points" id="reveal-pts-${idx}">+0</span>
+                        <span class="reveal-points" id="reveal-pts-${idx}">${s.gain > 0 ? '+0' : '+0'}</span>
+                        <span class="reveal-total" style="margin-left:14px;font-weight:700;opacity:.75;white-space:nowrap" id="reveal-total-${idx}">รวม ${s.total.toLocaleString()}</span>
                     `;
                     container.appendChild(row);
-                    setTimeout(() => {
+                    later(() => {
                         row.classList.add('wow-show');
                         if (idx === 0) { wowBurst(18, 50, 46); }
-                        countUp(document.getElementById(`reveal-pts-${idx}`), s.points, 700, '+');
-                        AudioFX.coin();
+                        countUp(document.getElementById(`reveal-pts-${idx}`), s.gain, 700, '+');
+                        if (s.gain > 0) AudioFX.coin();
                     }, idx * 320 + 180);
                 });
                 window.createConfetti();
             }
 
-            const revealFinishDelay = roundScorers.length > 0 ? (roundScorers.length - 1) * 320 + 180 + 700 + 450 : 800;
-            setTimeout(() => { nextBtn.classList.add('show'); }, revealFinishDelay);
+            const revealFinishDelay = rows.length > 0 ? (rows.length - 1) * 320 + 180 + 700 + 450 : 800;
+            later(() => { nextBtn.classList.add('show'); }, revealFinishDelay);
         }
 
         window.continueFromRoundReveal = function () {
+            const btn = document.getElementById('btn-next-round');
+            if (!btn.classList.contains('show')) return;   // กันกดซ้ำ/กดก่อนเวลา
             AudioFX.click();
-            document.getElementById('btn-next-round').classList.remove('show');
+            btn.classList.remove('show');
+            clearPhaseTimers();
             currentQIndex++;
             if (currentQIndex >= gameQuestions.length) {
                 set(ref(db, 'gameState'), { phase: 'lobby' });
@@ -1208,7 +1284,7 @@
             if (top5ConfettiInterval) { clearInterval(top5ConfettiInterval); top5ConfettiInterval = null; }
 
             // ค้างหน้านี้ไว้ 60 วินาที ก่อนให้ปุ่มไป Tournament Champion ปรากฏ
-            setTimeout(() => { nextBtn.classList.add('show'); }, 60000);
+            later(() => { nextBtn.classList.add('show'); }, 60000);
 
             let sorted = Object.values(playerScores).sort((a, b) => b.score - a.score).slice(0, 5);
             if (sorted.length === 0) {
@@ -1218,7 +1294,7 @@
 
             let revealOrder = [...sorted].reverse();
             revealOrder.forEach((p, i) => {
-                setTimeout(() => {
+                later(() => {
                     const rank = sorted.length - i;
                     const row = document.createElement('div');
                     row.className = `top5-row rank-${rank} wow-rank-in`;
@@ -1246,7 +1322,9 @@
         }
 
         window.continueFromTop5 = function () {
+            if (!document.getElementById('btn-next-top5').classList.contains('show')) return;
             AudioFX.click();
+            clearPhaseTimers();
             document.getElementById('btn-next-top5').classList.remove('show');
             if (top5ConfettiInterval) { clearInterval(top5ConfettiInterval); top5ConfettiInterval = null; }
             showGrandFinale();
@@ -1258,6 +1336,7 @@
 
             let teamTotals = {};
             getActiveTeams().forEach(t => { teamTotals[t] = 0; });
+            Object.values(playerScores).forEach(p => { if (p.team && teamTotals[p.team] === undefined) teamTotals[p.team] = 0; });
             for (let pId in playerScores) {
                 let t = playerScores[pId].team;
                 if (teamTotals[t] !== undefined) {
